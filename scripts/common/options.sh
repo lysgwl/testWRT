@@ -93,4 +93,4 @@ declare -A FEEDS_ARRAY
 #FEEDS_ARRAY["small"]="https://github.com/kenzok8/small"
 #FEEDS_ARRAY["scw"]="https://github.com/songchenwen/openwrt-package"
 #FEEDS_ARRAY["xwrt"]="https://github.com/x-wrt/com.x-wrt"
-FEEDS_ARRAY["istore"]="https://github.com/linkease/istore;main"
+#FEEDS_ARRAY["istore"]="https://github.com/linkease/istore;main"
