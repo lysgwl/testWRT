@@ -255,7 +255,7 @@ set_user_status()
 
 	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 		USER_STATUS_ARRAY["waittimeout"]=0
-		USER_STATUS_ARRAY["retrycount"]=1f
+		USER_STATUS_ARRAY["retrycount"]=1
 	fi
 }
 
