@@ -207,15 +207,13 @@ setLinuxEnv()
 		fi
 		
 		set +e
-		echo "11111"
 	else
 		# exit on error
 		set -e
-		echo "22222"
 	fi
 	
-	false
-	echo "test!!!"
+	echo ${USER_STATUS_ARRAY["waittimeout"]}
+	echo ${USER_STATUS_ARRAY["retrycount"]}
 	
 	# 为工作目录赋予权限
 	sudo chown $USER:$GROUPS $OPENWRT_WORK_PATH
