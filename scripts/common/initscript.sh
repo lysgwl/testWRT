@@ -205,6 +205,11 @@ setLinuxEnv()
 		if dpkg -s proxychains4 >/dev/null 2>&1; then
 			NETWORK_PROXY_CMD="proxychains4 -q -f /etc/proxychains4.conf"
 		fi
+		
+		set +e
+	else
+		# exit on error
+		set -e
 	fi
 	
 	# 为工作目录赋予权限
@@ -218,21 +223,37 @@ updateLinuxEnv()
 {
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
-	set +e
-	if [ ${USER_CONFIG_ARRAY["mode"]} -ne ${COMPILE_MODE[local_compile]} ]; then
-
+	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 		# 列出前100个比较大的包
-		dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+		#dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+		
 		print_log "INFO" "update linux" "正在删除大的软件包，请等待..."
 		
-		sudo apt-get remove -y '^ghc-8.*'
-		sudo apt-get remove -y '^dotnet-.*'
-		sudo apt-get remove -y '^llvm-.*'
-		sudo apt-get remove -y 'php.*'
-		sudo apt-get remove -y 'temurin-.*'
-		sudo apt-get remove -y 'mono-.*'
-		sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell microsoft-edge-stable
+		# ^ghc-8.*
+		remove_packages '^ghc-8.*'
 
+		# ^dotnet-.*
+		remove_packages '^dotnet-.*'
+
+		# ^llvm-.*
+		remove_packages '^llvm-.*'
+		
+		# php.*
+		remove_packages 'php.*'
+		
+		# temurin-.*
+		remove_packages 'temurin-.*'
+		
+		# mono-.*
+		remove_packages 'mono-.*'
+		
+		remove_packages_list=("azure-cli" "google-cloud-sdk" "hhvm" "google-chrome-stable" "firefox" "powershell" "microsoft-edge-stable")
+		
+		for package in "${packages_to_remove[@]}"; do
+			echo "正在尝试删除包：$package"
+			remove_packages "$package"
+		done
+		
 		sudo rm -rf \
             /etc/apt/sources.list.d/* \
             /usr/share/dotnet \
@@ -240,7 +261,7 @@ updateLinuxEnv()
             /opt/ghc \
             /opt/hostedtoolcache/CodeQL
 	fi
-
+	
 	sudo -E apt-get -qq update
 	sudo -E apt-get -qq upgrade
 	
