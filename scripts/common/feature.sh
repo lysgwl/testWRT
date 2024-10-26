@@ -89,10 +89,8 @@ execute_command_retry()
 	
 	until eval "${run_command}"; do
 		if [ $? -eq 0 ]; then
-			echo "count1=$attempts"
             break
         else
-			echo "count2=$attempts"
 			if [ "$attempts" -ge "$max_attempts" ]; then
 				printf "\033[1;33m%s\033[0m\n" "命令尝试次数已达最大次数, 即将退出运行!"
 				return 1

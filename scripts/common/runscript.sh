@@ -178,10 +178,11 @@ compile_openwrt_firmware()
 		fi
 		'
 		
-		if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
-			make -j$(nproc) || make -j1 V=s
-		else
+		if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 			${NETWORK_PROXY_CMD} make -j1 V=s
+		else
+			#make -j$(nproc) V=s
+			make -j1 V=s
 		fi || return 1
 		
 		return 0
@@ -450,9 +451,9 @@ clone_openwrt_source()
 		print_log "INFO" "clone sources" "克隆源码文件!"
 		
 		if [ -n "${branch}" ]; then
-			command="${NETWORK_PROXY_CMD} git1 clone ${url} -b ${branch} --depth=1 ${path}"
+			command="${NETWORK_PROXY_CMD} git clone ${url} -b ${branch} --depth=1 ${path}"
 		else
-			command="${NETWORK_PROXY_CMD} git1 clone ${url} --depth=1 ${path}"
+			command="${NETWORK_PROXY_CMD} git clone ${url} --depth=1 ${path}"
 		fi
 		
 		if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} "${command}"; then
@@ -485,14 +486,10 @@ auto_compile_openwrt()
 	# 设置自动编译状态
 	USER_STATUS_ARRAY["autocompile"]=1
 	
-	echo "test1-1"	
 	# 克隆openwrt源码
 	if ! clone_openwrt_source $1; then
 		return 1
 	fi
-	
-	echo "test1-2"
-	return 0
 	
 	# 设置 openwrt feeds源
 	if ! set_openwrt_feeds $1; then
