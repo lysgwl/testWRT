@@ -207,10 +207,15 @@ setLinuxEnv()
 		fi
 		
 		set +e
+		echo "11111"
 	else
 		# exit on error
 		set -e
+		echo "22222"
 	fi
+	
+	false
+	echo "test!!!"
 	
 	# 为工作目录赋予权限
 	sudo chown $USER:$GROUPS $OPENWRT_WORK_PATH
@@ -301,11 +306,11 @@ runAppLinux()
 	initLinuxEnv
 	
 	# 更新linux环境
-	updateLinuxEnv
+	#updateLinuxEnv
 	
 	# 设置linux环境
 	setLinuxEnv
 	
 	# 运行linux环境
-	runLinuxEnv
+	#runLinuxEnv
 }
