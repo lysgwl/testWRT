@@ -212,9 +212,6 @@ setLinuxEnv()
 		set -e
 	fi
 	
-	echo ${USER_STATUS_ARRAY["waittimeout"]}
-	echo ${USER_STATUS_ARRAY["retrycount"]}
-	
 	# 为工作目录赋予权限
 	sudo chown $USER:$GROUPS $OPENWRT_WORK_PATH
 	
@@ -310,5 +307,5 @@ runAppLinux()
 	setLinuxEnv
 	
 	# 运行linux环境
-	#runLinuxEnv
+	runLinuxEnv
 }

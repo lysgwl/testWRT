@@ -88,6 +88,7 @@ execute_command_retry()
 	local attempts=0
 	
 	until eval "${run_command}"; do
+		echo "count=$attempts"
 		if [ $? -eq 0 ]; then
             break
         else
