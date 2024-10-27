@@ -501,7 +501,7 @@ auto_compile_openwrt()
 	fi
 	
 	# 设置自定义配置
-	set_custom_config $1
+	#set_custom_config $1
 
 	# 设置功能选项
 	if ! set_menu_options $1; then
