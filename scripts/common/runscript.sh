@@ -394,6 +394,8 @@ set_openwrt_feeds()
 	# 传入源码信息
 	local -n local_source_array="$1"
 	
+	local type=${local_source_array["Type"]}
+	echo "type=$type"
 	# 获取路径
 	local path=${local_source_array["Path"]}
 	if [ -z "${path}" ] || [ ! -d "${path}" ]; then
@@ -408,9 +410,10 @@ set_openwrt_feeds()
 	# 设置种子配置文件
 	print_log "INFO" "setting feeds" "设置Feeds源配置文件!"
 	for key in "${!FEEDS_ARRAY[@]}"; do
-		#if [ "$key" = "istore" ] && ; then
-		#	continue
-		#fi
+
+		if [ "$key" = "istore" ] && [ ${local_source_array["Type"]} -eq ${SOURCE_TYPE[istoreos]} ]; then
+			continue
+		fi
 		
 		if grep -q "src-git.*${key}.*https" "${path}/feeds.conf.default"; then
 			if grep -q "^#.*src-git.*${key}.*https" "${path}/feeds.conf.default"; then
