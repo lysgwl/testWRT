@@ -408,6 +408,10 @@ set_openwrt_feeds()
 	# 设置种子配置文件
 	print_log "INFO" "setting feeds" "设置Feeds源配置文件!"
 	for key in "${!FEEDS_ARRAY[@]}"; do
+		#if [ "$key" = "istore" ] && ; then
+		#	continue
+		#fi
+		
 		if grep -q "src-git.*${key}.*https" "${path}/feeds.conf.default"; then
 			if grep -q "^#.*src-git.*${key}.*https" "${path}/feeds.conf.default"; then
 				sed -i "/^#.*${key}/s/#//" "${path}/feeds.conf.default"

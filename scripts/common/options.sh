@@ -47,8 +47,9 @@ COMPILE_MODE[remote_compile]=1
 # 源码类型
 declare -A SOURCE_TYPE
 SOURCE_TYPE[openwrt]=0
-SOURCE_TYPE[immortalwrt]=1
-SOURCE_TYPE[coolsnowwolf]=2
+SOURCE_TYPE[istoreos]=1
+SOURCE_TYPE[immortalwrt]=2
+SOURCE_TYPE[coolsnowwolf]=3
 
 # 项目配置
 declare -gA SOURCE_CONFIG_ARRAY
