@@ -1,5 +1,6 @@
 [other_config]
 luci-app-alist
 luci-app-diskman
+luci-app-hd-idle
 luci-app-socat
 alist

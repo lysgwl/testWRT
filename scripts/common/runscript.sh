@@ -181,8 +181,7 @@ compile_openwrt_firmware()
 		if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[local_compile]} ]; then
 			${NETWORK_PROXY_CMD} make -j1 V=s
 		else
-			#make -j$(nproc) V=s
-			make -j1 V=s
+			make -j$(nproc) V=s || make -j1 V=s
 		fi || return 1
 		
 		return 0
