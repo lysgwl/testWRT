@@ -4,13 +4,14 @@
 # 设置网络地址
 set_network_addr()
 {
-	source_path=$1
+	local -n source_array_ref=$1
+	source_path=${source_array_ref["Path"]}
 	
 	# 设置缺省IP地址
 	{
-		local file="${source_path}/package/base-files/files/bin/config_generate"
 		print_log "INFO" "custom config" "[设置Lan接口缺省IP地址]"
 		
+		local file="${source_path}/package/base-files/files/bin/config_generate"
 		if [ -e ${file} ]; then
 			local ip_addr=$(sed -n 's/.*lan) ipad=\${ipaddr:-"\([0-9.]\+\)"}.*/\1/p' ${file})
 			local default_ip="${NETWORK_CONFIG_ARRAY["lanaddr"]}"
@@ -23,9 +24,9 @@ set_network_addr()
 	
 	# 配置网络接口
 	{
-		local file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
 		print_log "INFO" "custom config" "[设置网络接口地址]"
 		
+		local file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
 		# 配置lan接口
 		{
 			# lan地址
@@ -135,9 +136,6 @@ set_network_addr()
 # 设置自定义网络
 set_user_network()
 {
-	local source_type=$1
-	local source_path=$2
-
 	# 设置网络地址
-	set_network_addr ${source_path} ${file}
+	set_network_addr $1
 }

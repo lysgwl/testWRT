@@ -4,13 +4,15 @@
 # 设置主机名称
 set_host_name()
 {
-	local source_type=$1
-	local source_path=$2
+	local -n source_array_ref=$1
+	
+	local source_type=${source_array_ref["Type"]}
+	local source_path=${source_array_ref["Path"]}
 	
 	if [ ${source_type} -eq ${SOURCE_TYPE[openwrt]} ] || [ ${source_type} -eq ${SOURCE_TYPE[immortalwrt]} ]; then
-		local file="${source_path}/package/base-files/files/bin/config_generate"
 		print_log "INFO" "custom config" "[设置主机名称]"
 		
+		local file="${source_path}/package/base-files/files/bin/config_generate"
 		if [ -e ${file} ]; then
 			local host_name=$(sed -n "s/.*system\.@system\[-1\]\.hostname='\([^']*\)'/\1/p" ${file})
 			local default_name="${USER_CONFIG_ARRAY["defaultname"]}"
@@ -24,10 +26,9 @@ set_host_name()
 			fi
 		fi
 	elif [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-		# 设置主机名称
-		local file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		print_log "INFO" "custom config" "[设置主机名称]"
 		
+		local file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		if [ -e ${file} ]; then
 			local host_name=$(sed -n 's/.*hostname=\(.*\)/\1/p' ${file})
 			local default_name="${USER_CONFIG_ARRAY["defaultname"]}"
@@ -46,11 +47,12 @@ set_host_name()
 # 设置用户密码
 set_user_passwd()
 {
-	local source_path=$1
+	local -n source_array_ref=$1
+	local source_path=${source_array_ref["Path"]}
 	
-	local file="${source_path}/package/base-files/files/etc/shadow"
 	print_log "INFO" "custom config" "[设置用户缺省密码]"
 	
+	local file="${source_path}/package/base-files/files/etc/shadow"
 	if [ -e ${file} ]; then
 		local default_passwd="${USER_CONFIG_ARRAY["defaultpasswd"]}"
 		if [ -z "${default_passwd}" ]; then
@@ -82,8 +84,10 @@ set_user_passwd()
 # 设置默认中文
 set_default_chinese()
 {
-	local source_path=$1
 	print_log "INFO" "custom config" "[设置缺省中文]"
+	
+	local -n source_array_ref=$1
+	local source_path=${source_array_ref["Path"]}
 	
 	{
 		local file="${source_path}/feeds/luci/modules/luci-base/root/etc/config/luci"
@@ -105,59 +109,60 @@ set_default_chinese()
 # 设置时区
 set_system_timezone()
 {
-	local source_path=$1
+	local -n source_array_ref=$1
+	local source_path=${source_array_ref["Path"]}
 	
-	{
-		local file="${source_path}/package/base-files/files/bin/config_generate"
-		print_log "INFO" "custom config" "[设置系统时区]"
+	print_log "INFO" "custom config" "[设置系统时区]"
+	
+	local file="${source_path}/package/base-files/files/bin/config_generate"
+	if [ -e ${file} ]; then
+		local time_zone=$(sed -n "s/.*system\.@system\[-1\]\.timezone='\([^']*\)'/\1/p" ${file})
+		local default_timezone="${USER_CONFIG_ARRAY["timezone"]}"
 		
-		if [ -e ${file} ]; then
-			local time_zone=$(sed -n "s/.*system\.@system\[-1\]\.timezone='\([^']*\)'/\1/p" ${file})
-			local default_timezone="${USER_CONFIG_ARRAY["timezone"]}"
-			
-			if [ -n "${time_zone}" ]; then
-				if [ "${time_zone}" != "${default_timezone}" ]; then
-					sed -i "s/\(set system.@system\[-1\].timezone=\).*/\1'${default_timezone}'/" ${file}
-				fi
-			fi
-			
-			local zone_name=$(sed -n "s/.*system\.@system\[-1\]\.zonename='\([^']*\)'/\1/p" ${file})
-			local default_zonename="${USER_CONFIG_ARRAY["zonename"]}"
-			
-			if [ -z "${zone_name}" ]; then
-				#sed -i "/.*system.@system\[-1\].timezone.*$/a\ \t\tset system.@system[-1].zonename='\$defaultzonename'" ${file}
-				sed -i "/.*system.@system\[-1\].timezone.*\$/a\ \t\tset system.@system[-1].zonename='${default_zonename}'" ${file}
-			else
-				if [ "${zone_name}" != "${default_zonename}" ]; then
-					sed -i "s|\(set system.@system\[-1\].zonename=\).*|\1'${default_zonename}'|" ${file}
-				fi
+		if [ -n "${time_zone}" ]; then
+			if [ "${time_zone}" != "${default_timezone}" ]; then
+				sed -i "s/\(set system.@system\[-1\].timezone=\).*/\1'${default_timezone}'/" ${file}
 			fi
 		fi
-	}
+		
+		local zone_name=$(sed -n "s/.*system\.@system\[-1\]\.zonename='\([^']*\)'/\1/p" ${file})
+		local default_zonename="${USER_CONFIG_ARRAY["zonename"]}"
+		
+		if [ -z "${zone_name}" ]; then
+			#sed -i "/.*system.@system\[-1\].timezone.*$/a\ \t\tset system.@system[-1].zonename='\$defaultzonename'" ${file}
+			sed -i "/.*system.@system\[-1\].timezone.*\$/a\ \t\tset system.@system[-1].zonename='${default_zonename}'" ${file}
+		else
+			if [ "${zone_name}" != "${default_zonename}" ]; then
+				sed -i "s|\(set system.@system\[-1\].zonename=\).*|\1'${default_zonename}'|" ${file}
+			fi
+		fi
+	fi
 }
 
 # 设置默认编译
 set_compile_option()
 {
-	local source_type=$1
-	local source_path=$2
+	local -n source_array_ref=$1
 	
-	{
-		# 编译O2优化
-		local file="${source_path}/include/target.mk"
+	local source_type=${source_array_ref["Type"]}
+	local source_path=${source_array_ref["Path"]}
+	
+	{ # 编译O2优化
+		
 		print_log "INFO" "custom config" "[编译O2优化]"
 		
+		local file="${source_path}/include/target.mk"
 		if [ -e ${file} ]; then
 			sed -i 's/Os/O2/g' ${file}
 		fi
 	}
 	
-	{
-		# 设置编译信息
+	{ # 设置编译信息
+		
 		if [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-			local file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 			print_log "INFO" "custom config" "[设置编译信息]"
 			
+			local file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 			if [ -e ${file} ]; then
 				local build_info="C95wl build $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt"
 				sed -i "s/\(echo \"DISTRIB_DESCRIPTION='\)[^\']*\( '\"\s>> \/etc\/openwrt_release\)/\1${build_info}\2/g" ${file}
@@ -169,14 +174,16 @@ set_compile_option()
 # 设置PWM FAN
 set_pwm_fan()
 {
-	local source_type=$1
-	local source_path=$2
+	print_log "INFO" "custom config" "[设置PWM风扇]"
+	local -n source_array_ref=$1
+	
+	local source_type=${source_array_ref["Type"]}
+	local source_path=${source_array_ref["Path"]}
 	
 	if [ "${USER_CONFIG_ARRAY["userdevice"]}" != "r2s" ] && [ "${USER_CONFIG_ARRAY["userdevice"]}" != "r5s" ]; then
 		return
 	fi
 	
-	print_log "INFO" "custom config" "[设置PWM风扇]"
 	{
 		local path=""
 		local url=""
@@ -226,14 +233,16 @@ set_pwm_fan()
 #  设置系统功能
 set_system_func()
 {
-	local source_type=$1
-	local source_path=$2
+	local -n source_array_ref=$1
+	
+	local source_type=${source_array_ref["Type"]}
+	local source_path=${source_array_ref["Path"]}
 	
 	# irqbalance 
 	{
-		local file="${source_path}/feeds/packages/utils/irqbalance/files/irqbalance.config"
 		print_log "INFO" "custom config" "[设置irqbalance]"
 		
+		local file="${source_path}/feeds/packages/utils/irqbalance/files/irqbalance.config"
 		if [ -f "${file}" ]; then
 			sed -i "s/enabled '0'/enabled '1'/g" ${file}
 		fi
@@ -244,47 +253,38 @@ set_system_func()
 # 设置系统配置
 set_system_config()
 {
-	local source_type=$1
-	local source_path=$2
-	
 	# 设置主机名称
-	set_host_name ${source_type} ${source_path}
+	set_host_name $1
 	
 	# 设置用户密码
-	set_user_passwd ${source_path}
+	set_user_passwd $1
 	
 	# 设置默认中文
-	set_default_chinese ${source_path}
+	set_default_chinese $1
 	
 	# 设置时区
-	set_system_timezone ${source_path}
+	set_system_timezone $1
 	
 	# 设置默认编译
-	set_compile_option ${source_type} ${source_path}
+	set_compile_option $1
 }
 
 # 设置系统脚本
 set_system_script()
 {
-	local source_type=$1
-	local source_path=$2
-	
 	# 设置PWM FAN
-	set_pwm_fan ${source_type} ${source_path}
+	set_pwm_fan $1
 	
 	#  设置系统功能
-	set_system_func ${source_type} ${source_path}
+	set_system_func $1
 }
 
 # 设置自定义配置
 set_user_config()
 {
-	local source_type=$1
-	local source_path=$2
-
 	# 设置系统配置
-	set_system_config ${source_type} ${source_path}
+	set_system_config $1
 	
 	# 设置系统脚本
-	set_system_script ${source_type} ${source_path}
+	set_system_script $1
 }

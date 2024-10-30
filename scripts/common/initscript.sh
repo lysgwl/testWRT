@@ -6,7 +6,6 @@ exeCmdShell()
 {
 	# 执行命令
 	local cmd=$1
-	local -n array=$2
 	
 	local ret=0
 	case ${cmd} in
@@ -67,7 +66,7 @@ setCmdMenu()
 	
 	clear
 	while [ 1 ]; do
-		local -n cmd_source_array="$1"
+		local -n cmd_source_array=$1
 		
 		# 显示命令目录
 		show_cmd_menu cmd_array[@] cmd_source_array
@@ -126,16 +125,16 @@ setSourceMenu()
 		# 获取源码类型
 		local source_type=${SOURCE_TYPE[${source_name}]}
 		
-		declare -A source_array
-		get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
+		declare -A menu_source_array
+		get_struct_field SOURCE_CONFIG_ARRAY ${source_type} menu_source_array
 		
-		if [ ${#source_array[@]} -eq 0 ]; then
+		if [ ${#menu_source_array[@]} -eq 0 ]; then
 			clear; print_log "WARNING" "source menu" "获取源码配置有误, 请检查!"
 			continue
 		fi
 		
 		# 设置命令目录
-		setCmdMenu source_array
+		setCmdMenu menu_source_array
 		
 		# 执行成功清屏
 		if [ $? -eq 0 ]; then
@@ -147,7 +146,7 @@ setSourceMenu()
 # 运行linux环境
 runLinuxEnv()
 {
-	print_log "TRACE" "run linux" "正在运行linux环境，请等待..."
+	print_log "TRACE" "script env" "正在运行脚本环境，请等待..."
 	
 	local source_name_array=()
 	enum_struct_field SOURCE_CONFIG_ARRAY "Name" source_name_array
@@ -161,26 +160,41 @@ runLinuxEnv()
 		# 设置源码目录 
 		setSourceMenu ${source_name_array[@]}
 	else
-		for key in "${!source_name_array[@]}"; do
-			# 获取源码名称
-			local source_name="${source_name_array[$key]}"
+		# 初始化计数变量
+		local index=0
+		
+		# 名称进行排序
+		local sorted_source_name_array=($(for i in "${source_name_array[@]}"; do echo "$i"; done | sort -r))
+		
+		for key in "${!sorted_source_name_array[@]}"; do
+		
+			# 增加索引计数
+			let index=$index+1
 			
-			# 获取源码类型
-			local source_type=${SOURCE_TYPE[${source_name}]}
-
-			declare -A source_array
-			get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
-			if [ ${#source_array[@]} -eq 0 ]; then
-				continue
-			fi
-
-			if [ ${source_array["Action"]} -eq 1 ]; then
+			# 获取设置选项
+			local source_opt="$(echo "${USER_CONFIG_ARRAY["actionopt"]}" | sed 's/^ *//;s/ *$//')"
+			
+			if [ "$index" = "$source_opt" ]; then
+				# 获取源码名称
+				local source_name="${sorted_source_name_array[$key]}"
+				
+				# 获取源码类型
+				local source_type=${SOURCE_TYPE[${source_name}]}
+				
+				declare -A source_array
+				get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
+				if [ ${#source_array[@]} -eq 0 ]; then
+					continue
+				fi
+				
 				# 自动编译openwrt
 				auto_compile_openwrt source_array
 				break
 			fi
 		done
 	fi
+	
+	print_log "TRACE" "script env" "结束脚本环境运行!"
 }
 
 # 设置linux环境

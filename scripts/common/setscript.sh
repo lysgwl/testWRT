@@ -8,66 +8,57 @@
 # 脚本运行参数
 SCRIPT_CMD_ARGS=$1
 #********************************************************************************#
-# 自定义插件
+# 设置插件
 set_openwrt_plugins()
 {
-	local -n local_source_array="$1"
 	print_log "TRACE" "custom config" "正在获取第三方插件..."
+	local -n set_source_array=$1
 	
-	local source_type=${local_source_array["Type"]}
-	local source_path=${local_source_array["Path"]}
-	
-	# 自定义插件路径
-	local plugins_path="${source_path}/package/${USER_CONFIG_ARRAY["plugins"]}/plugins" 
-	if [ ! -d "${plugins_path}" ]; then
-		mkdir -p "${plugins_path}"
+	# 设置插件路径
+	local plugin_path="${set_source_array["Path"]}/package/${USER_CONFIG_ARRAY["plugins"]}/plugins" 
+	if [ ! -d "${plugin_path}" ]; then
+		mkdir -p "${plugin_path}"
 	fi
 	
-	# 设置自定义插件
-	if ! set_user_plugins ${source_type} ${source_path} ${plugins_path}; then
+	# 设置用户插件
+	if ! set_user_plugin ${plugin_path} set_source_array; then
 		return 1
 	fi
 
 	return 0
 }
 
-# 自定义主题
+# 设置主题
 set_openwrt_themes()
 {
-	local -n local_source_array="$1"
 	print_log "TRACE" "custom config" "正在设置自定义主题..."
+	local -n set_source_array=$1
 
-	local source_type=${local_source_array["Type"]}
-	local source_path=${local_source_array["Path"]}
-	
-	# 自定义插件路径
-	local plugins_path="${source_path}/package/${USER_CONFIG_ARRAY["plugins"]}/themes" 
+	# 设置主题路径
+	local plugins_path="${set_source_array["Path"]}/package/${USER_CONFIG_ARRAY["plugins"]}/themes" 
 	if [ ! -d "${plugins_path}" ]; then
 		mkdir -p "${plugins_path}"
 	fi
 	
 	# 设置自定义主题
-	if ! set_user_themes ${source_type} ${source_path} ${plugins_path}; then
+	if ! set_user_themes ${plugins_path} set_source_array; then
 		return 1
 	fi
 	
 	return 0
 }
 
-# 自定义配置
+# 设置配置
 set_openwrt_config()
 {
-	local -n local_source_array="$1"
 	print_log "TRACE" "custom config" "正在设置缺省配置..."
-	
-	local source_type=${local_source_array["Type"]}
-	local source_path=${local_source_array["Path"]}
+	local -n set_source_array=$1
 	
 	# 设置自定义配置
-	set_user_config ${source_type} ${source_path}
+	set_user_config set_source_array
 	
 	# 设置自定义网络
-	set_user_network ${source_type} ${source_path}
+	set_user_network set_source_array
 }
 
 #********************************************************************************#
@@ -123,6 +114,8 @@ get_source_config()
 			return 1
 		fi
 	}
+	
+	return 0
 }
 
 # 获取自定义配置
@@ -156,7 +149,12 @@ get_diy_config()
 		
 		# nginx配置
 		USER_CONFIG_ARRAY["nginxcfg"]="${fields_array["nginx_cfg"]}"
+		
+		# 编译选项
+		USER_CONFIG_ARRAY["actionopt"]="${fields_array["action_option"]}"
 	}
+	
+	return 0
 }
 
 # 获取network接口配置
@@ -213,6 +211,8 @@ get_network_config()
 		# wan接口dns地址
 		NETWORK_CONFIG_ARRAY["wandnsaddr"]="${fields_array["wan_dnsaddr"]}"
 	}
+	
+	return 0
 }
 
 # 获取用户配置
@@ -230,13 +230,19 @@ get_user_config()
 	fi
 	
 	# 获取源码配置
-	get_source_config ${conf_file}
+	if ! get_source_config ${conf_file}; then
+		return 1
+	fi
 	
 	# 获取自定义匹配值
-	get_diy_config ${conf_file}
+	if ! get_diy_config ${conf_file}; then
+		return 1
+	fi
 	
 	# 获取network接口配置
-	get_network_config ${conf_file}
+	if ! get_network_config ${conf_file}; then
+		return 1
+	fi
 
 	return 0
 }
@@ -404,38 +410,55 @@ get_firmware_info()
 remove_plugin_package()
 {
 	local section_name=$1
-	local source_path=$2
-	
-	local conf_file=$3
-	local -n fields_array=$4
+	local conf_file=$2
+	local array_json=$3
 	
 	if [ ! -e "${conf_file}" ]; then
 		print_log "ERROR" "user config" "插件配置文件不存在, 请检查!"
 		return
 	fi
 	
-	local plugin_array=()
-	if ! get_config_list "${section_name}" "${conf_file}" plugin_array; then
+	if ! is_valid_json "${array_json}"; then
+		print_log "ERROR" "user config" "不是有效的JSON格式数据, 请检查!"
 		return
 	fi
 	
-	# 查找要排除的部分
-	local exclude_expr=""
-	
-	if [ ${#fields_array[@]} -gt 0 ]; then
-		for path in "${fields_array[@]}"; do
-			exclude_expr+=" -path ${path} -o"
-		done
-		
-		# 去掉最后一个 '-o'
-		exclude_expr="${exclude_expr% -o}"
+	local plugin_array=()
+	if ! get_config_list "${section_name}" "${conf_file}" plugin_array; then
+		print_log "ERROR" "user config" "获取插件配置列表失败, 请检查!"
+		return
 	fi
 	
-	for value in "${plugin_array[@]}"; do
-		if [ -z "${exclude_expr}" ]; then
-			find ${source_path} -name "${value}" | xargs rm -rf;
-		else
-			find ${source_path} \( ${exclude_expr} \) -prune -o -name ${value} -print0 | xargs -0 rm -rf;
+	echo "${array_json}" | jq -c '.[]' | while read -r item; do
+		# 源码路径
+		source_path=$(echo "$item" | jq -r '.source_path')
+		
+		# 排除路径
+		exclude_json_array=$(echo "$item" | jq -c '.exclude_path')
+		
+		if [ -z "${source_path}" ]; then
+			continue
 		fi
+		
+		# 查找要排除的部分
+		exclude_expr=""
+		
+		if [ -n "${exclude_json_array}" ]; then
+			
+			while read -r exclude_item; do
+				exclude_expr+=" -path ${exclude_item} -o"
+			done < <(echo "$exclude_json_array" | jq -c '.[]')
+			
+			# 去掉最后一个 '-o'
+			exclude_expr="${exclude_expr% -o}"
+		fi
+		
+		for value in "${plugin_array[@]}"; do
+			if [ -z "${exclude_expr}" ]; then
+				find ${source_path} -name "${value}" | xargs rm -rf;
+			else
+				find ${source_path} \( ${exclude_expr} \) -prune -o -name ${value} -print0 | xargs -0 rm -rf;
+			fi
+		done
 	done
 }

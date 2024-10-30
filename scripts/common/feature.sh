@@ -220,7 +220,7 @@ get_config_list()
 {
 	# section名称
 	local section=$1
-	
+
 	# 配置文件
 	local confile=$2
 	
@@ -407,11 +407,10 @@ is_json_object()
 # 判断是否为有效 JSON 格式
 is_valid_json()
 {
-	 local input="$1"
+	local input="$1"
 	
 	 # 使用 jq 来验证输入是否是有效的 JSON
     echo "$input" | jq empty >/dev/null 2>&1
-	
 	return $?
 }
 
@@ -451,14 +450,22 @@ build_json_object()
             json_object+=", "
         fi
 		
-		# 添加键值对
+		# 判断值的类型并进行相应处理
 		if is_valid_json "$value"; then
+			# 如果值是合法的 JSON 对象/数组，直接使用
+			json_object+="\"${key}\": ${value}"
+		elif [[ "$value" =~ ^-?[0-9]+$ ]]; then
+			# 如果值是整数，不加引号
+			json_object+="\"${key}\": ${value}"
+		elif [[ "$value" =~ ^(true|false|null)$ ]]; then
+			# 如果值是布尔值或 null，不加引号
 			json_object+="\"${key}\": ${value}"
 		else
+			# 默认情况：字符串，加引号
 			json_object+="\"${key}\": \"${value}\""
 		fi
 
-         # 更新标志，后续键值对之前需要添加逗号
+        # 更新标志，后续键值对之前需要添加逗号
         first_pair=false
     done
 	

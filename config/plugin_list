@@ -1,6 +1,11 @@
-[other_config]
+[common_config]
 luci-app-alist
 luci-app-diskman
 luci-app-hd-idle
 luci-app-socat
 alist
+
+[immortalwrt_config]
+[themes-config]
+luci-theme-argon
+luci-theme-argon-config
