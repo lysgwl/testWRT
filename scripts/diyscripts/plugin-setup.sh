@@ -4,8 +4,9 @@
 # 下载other package
 download_other_package()
 {
-	print_log "INFO" "custom config" "获取otherpackage仓库代码..."
 	local plugin_path=$1
+	
+	print_log "INFO" "custom config" "获取otherpackage仓库代码..."
 	
 	local url="https://github.com/lysgwl/openwrt-package.git/otherpackage?ref=master"	
 	if ! get_remote_spec_contents "$url" "other" ${plugin_path} ${NETWORK_PROXY_CMD}; then
@@ -19,10 +20,10 @@ download_other_package()
 # 下载golang
 download_golang()
 {
-	print_log "INFO" "custom config" "获取golang仓库代码..."
-	
 	local -n source_array_ref=$1
 	local source_path=${source_array_ref["Path"]}
+	
+	print_log "INFO" "custom config" "获取golang仓库代码..."
 	
 	local url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
 	if ! clone_repo_contents "$url" "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}; then
@@ -36,11 +37,12 @@ download_golang()
 # 下载shidahuilang package
 download_shidahuilang_package()
 {
+	local plugin_path=$1
+	
 	print_log "INFO" "custom config" "获取shidahuilang仓库代码..."
-	local plugins_path=$1
 	
 	local url="https://github.com/lysgwl/openwrt-package.git/shidahuilang?ref=master"
-	if ! get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}; then
+	if ! get_remote_spec_contents "$url" ${plugin_path} ${NETWORK_PROXY_CMD}; then
 		print_log "ERROR" "custom config" "获取shidahuilang仓库代码失败, 请检查!"
 		return 1
 	fi
@@ -51,11 +53,12 @@ download_shidahuilang_package()
 # 下载kiddin9 package
 download_kiddin9_package()
 {
+	local plugin_path=$1
+	
 	print_log "INFO" "custom config" "获取kiddin9仓库代码..."
-	local plugins_path=$1
 	
 	local url="https://github.com/lysgwl/openwrt-package.git/kiddin9/master?ref=master"
-	if ! get_remote_spec_contents "$url" ${plugins_path} ${NETWORK_PROXY_CMD}; then
+	if ! get_remote_spec_contents "$url" ${plugin_path} ${NETWORK_PROXY_CMD}; then
 		print_log "ERROR" "custom config" "获取kiddin9仓库代码失败, 请检查!"
 		return 1
 	fi
@@ -66,11 +69,12 @@ download_kiddin9_package()
 # 下载siropboy package
 download_siropboy_package()
 {
+	local plugin_path=$1
+	
 	print_log "INFO" "custom config" "获取sirpdboy-package仓库代码..."
-	local plugins_path=$1
 		
 	local url="https://github.com/sirpdboy/sirpdboy-package.git?ref=main"
-	if ! clone_repo_contents "$url" "${plugins_path}" ${NETWORK_PROXY_CMD}; then
+	if ! clone_repo_contents "$url" "${plugin_path}" ${NETWORK_PROXY_CMD}; then
 		print_log "ERROR" "custom config" "获取sirpdboy-package仓库代码失败, 请检查!"
 		return 1
 	fi
@@ -85,63 +89,43 @@ set_light_plugin()
 	local source_path=$1
 	
 	# 删除luci-light插件
-	{
-		print_log "INFO" "custom config" "[删除插件luci-light]"
-		local file="${source_path}/feeds/luci/collections/luci-light"
-		
-		if [ -d ${file} ]; then	
-			rm -rf ${file}
-		fi
-	}
+	print_log "INFO" "custom config" "[删除插件luci-light]"
+	
+	local file="${source_path}/feeds/luci/collections/luci-light"
+	if [ -d ${file} ]; then	
+		rm -rf ${file}
+	fi
 	
 	# 取消luci-ssl对luci-light依赖
-	{
-		print_log "INFO" "custom config" "[修改插件luci-ssl]"
-		local file="${source_path}/feeds/luci/collections/luci-ssl/Makefile"
-		
-		if [ -e ${file} ] && grep -q "+luci-light" ${file}; then	
-			#sed -i 's/\s*+luci-light\s*//g' ${file}
-			#sed -i 's/\s\+luci-light\s\+//g' ${file}
-			sed -i 's/[[:space:]]*+luci-light[[:space:]]*//g' ${file}
-		fi
-	}
+	print_log "INFO" "custom config" "[修改插件luci-ssl]"
+	
+	local file="${source_path}/feeds/luci/collections/luci-ssl/Makefile"
+	remove_keyword_file "+luci-light" ${file}
 	
 	# 取消luci-ssl-openssl对luci-light依赖
-	{
-		print_log "INFO" "custom config" "[修改插件luci-ssl-openssl]"
-		local file="${source_path}/feeds/luci/collections/luci-ssl-openssl/Makefile"
-		
-		if [ -e ${file} ] && grep -q "+luci-light" ${file}; then	
-			#sed -i 's/\s*+luci-light\s*//g' ${file}
-			sed -i 's/[[:space:]]*+luci-light[[:space:]]*//g' ${file}
-		fi
-	}
+	print_log "INFO" "custom config" "[修改插件luci-ssl-openssl]"
+	
+	local file="${source_path}/feeds/luci/collections/luci-ssl-openssl/Makefile"
+	remove_keyword_file "+luci-light" ${file}
 }
 
 # 设置uhttpd插件依赖
 set_uhttpd_plugin()
 {
-	print_log "INFO" "custom config" "[修改uhttpd编译]"
 	local source_path=$1
 	
 	if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" != "1" ]; then
 		return
 	fi
 	
+	print_log "INFO" "custom config" "[修改uhttpd编译]"
 	local file="${source_path}/feeds/luci/collections/luci/Makefile"
-	if [ -e ${file} ]; then
-		# 取消uhttpd依赖
-		if grep -q "+uhttpd" ${file}; then
-			#sed -i 's/\+uhttpd//g; s/^\s*//; s/\s*$//' ${file}
-			sed -i 's/\+\(uhttpd\)[[:space:]]\+//g' ${file}
-		fi
-		
-		# 取消uhttpd-mod-ubus依赖
-		if grep -q "+uhttpd" ${file}; then
-			#sed -i 's/[[:space:]]*+uhttpd-mod-ubus[[:space:]]*//g' ${file}
-			sed -i 's/\+\(uhttpd-mod-ubus\)[[:space:]]\+//g' ${file}
-		fi
-	fi
+	
+	# 取消uhttpd依赖
+	remove_keyword_file "+uhttpd" ${file}
+	
+	# 取消uhttpd-mod-ubus依赖
+	remove_keyword_file "+uhttpd-mod-ubus" ${file}
 }
 
 # 设置bootstrap插件
@@ -150,41 +134,29 @@ set_bootstrap_plugin()
 	local source_path=$1
 	
 	# 取消luci-nginx对luci-theme-bootstrap依赖
-	{
-		print_log "INFO" "custom config" "[修改插件luci-nginx]"
-		
-		local file="${source_path}/feeds/luci/collections/luci-nginx/Makefile"
-		if [ -e ${file} ] && grep -q "+luci-theme-bootstrap" ${file}; then	
-			#sed -i 's/\s*+luci-theme-bootstrap//g' ${file}
-			sed -i 's/[[:space:]]*+luci-theme-bootstrap//g' ${file}
-		fi	
-	}
+	print_log "INFO" "custom config" "[修改插件luci-nginx]"
+	
+	local file="${source_path}/feeds/luci/collections/luci-nginx/Makefile"
+	remove_keyword_file "+luci-theme-bootstrap" ${file}
 	
 	# 取消luci-ssl-nginx对luci-theme-bootstrap依赖
-	{
-		print_log "INFO" "custom config" "[修改插件luci-ssl-nginx]"
-		
-		local file="${source_path}/feeds/luci/collections/luci-ssl-nginx/Makefile"
-		if [ -e ${file} ]; then	
-			if grep -q "+luci-theme-bootstrap" ${file}; then
-				#sed -i 's/\s*+luci-theme-bootstrap//g' ${file}
-				sed -i 's/[[:space:]]*+luci-theme-bootstrap//g' ${file}
-			fi
-		fi	
-	}
+	print_log "INFO" "custom config" "[修改插件luci-ssl-nginx]"
+	
+	local file="${source_path}/feeds/luci/collections/luci-ssl-nginx/Makefile"
+	remove_keyword_file "+luci-theme-bootstrap" ${file}
 }
 
 # 设置nginx插件
 set_nginx_plugin()
 {
-	print_log "INFO" "custom config" "[设置nginx配置文件]"
-	
 	local -n source_array_ref=$1
 	local source_path=${source_array_ref["Path"]}
 	
 	if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" != "1" ]; then
 		return
 	fi
+	
+	print_log "INFO" "custom config" "[设置nginx配置文件]"
 	
 	# 修改nginx配置文件
 	local nginx_cfg="${source_path}/feeds/packages/net/nginx-util/files/nginx.config"
@@ -206,21 +178,13 @@ set_plugin_depends()
 {
 	local -n source_array_ref=$1
 	
-	local source_type=${source_array_ref["Type"]}
 	local source_path=${source_array_ref["Path"]}
 	
-	case ${source_type} in
-	${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
-		# 设置light插件
-		set_light_plugin ${source_path}
-		;;
-	${SOURCE_TYPE[coolsnowwolf]})
-		# 设置uhttpd插件依赖
-		set_uhttpd_plugin ${source_path}
-		;;
-	*)
-		;;	
-	esac
+	# 设置uhttpd插件依赖
+	set_uhttpd_plugin ${source_path}
+	
+	# 设置light插件
+	set_light_plugin ${source_path}
 	
 	# 设置bootstrap插件
 	set_bootstrap_plugin ${source_path}
@@ -233,18 +197,6 @@ set_plugin_webui()
 	
 	local source_type=${source_array_ref["Type"]}
 	local source_path=${source_array_ref["Path"]}
-	
-	# upnp插件
-	case ${source_type} in
-	${SOURCE_TYPE[openwrt]} | ${SOURCE_TYPE[immortalwrt]})
-		file="${source_path}/feeds/luci/applications/luci-app-upnp/root/usr/share/luci/menu.d/luci-app-upnp.json"
-		if [ -e ${file} ]; then
-			sed -i 's/services/network/g' ${file}
-		fi
-		;;
-	*)
-		;;	
-	esac
 }
 
 # 设置插件移除

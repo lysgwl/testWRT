@@ -9,9 +9,9 @@ set_host_name()
 	local source_type=${source_array_ref["Type"]}
 	local source_path=${source_array_ref["Path"]}
 	
+	print_log "INFO" "custom config" "[设置主机名称]"
+	
 	if [ ${source_type} -eq ${SOURCE_TYPE[openwrt]} ] || [ ${source_type} -eq ${SOURCE_TYPE[immortalwrt]} ]; then
-		print_log "INFO" "custom config" "[设置主机名称]"
-		
 		local file="${source_path}/package/base-files/files/bin/config_generate"
 		if [ -e ${file} ]; then
 			local host_name=$(sed -n "s/.*system\.@system\[-1\]\.hostname='\([^']*\)'/\1/p" ${file})
@@ -26,8 +26,6 @@ set_host_name()
 			fi
 		fi
 	elif [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-		print_log "INFO" "custom config" "[设置主机名称]"
-		
 		local file="${source_path}/package/lean/default-settings/files/zzz-default-settings"
 		if [ -e ${file} ]; then
 			local host_name=$(sed -n 's/.*hostname=\(.*\)/\1/p' ${file})
@@ -84,10 +82,10 @@ set_user_passwd()
 # 设置默认中文
 set_default_chinese()
 {
-	print_log "INFO" "custom config" "[设置缺省中文]"
-	
 	local -n source_array_ref=$1
 	local source_path=${source_array_ref["Path"]}
+	
+	print_log "INFO" "custom config" "[设置缺省中文]"
 	
 	{
 		local file="${source_path}/feeds/luci/modules/luci-base/root/etc/config/luci"
@@ -98,7 +96,6 @@ set_default_chinese()
 	
 	{
 		local file="${source_path}/package/base-files/files/etc/uci-defaults/99-defaults-settings"
-		
 		cat > ${file} <<-EOF
 			uci set luci.main.lang=zh_cn
 			uci commit luci
@@ -174,7 +171,6 @@ set_compile_option()
 # 设置PWM FAN
 set_pwm_fan()
 {
-	print_log "INFO" "custom config" "[设置PWM风扇]"
 	local -n source_array_ref=$1
 	
 	local source_type=${source_array_ref["Type"]}
@@ -184,15 +180,14 @@ set_pwm_fan()
 		return
 	fi
 	
+	print_log "INFO" "custom config" "[设置PWM风扇]"
+	
 	{
-		local path=""
-		local url=""
-		
 		# rk3328-pwmfan
-		path="${source_path}/target/linux/rockchip/armv8/base-files/etc/init.d/"
+		local path="${source_path}/target/linux/rockchip/armv8/base-files/etc/init.d/"
 		if [ ! -f "${path}/rk3328-pwmfan" ]; then
 			if [ ! -f "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwmfan" ]; then
-				url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/etc/init.d/fa-rk3328-pwmfan"
+				local url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/etc/init.d/fa-rk3328-pwmfan"
 				${NETWORK_PROXY_CMD} wget -P "${path}" -O "${path}/rk3328-pwmfan" "${url}"
 			else
 				cp -rf "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwmfan"  "${path}"
@@ -200,13 +195,13 @@ set_pwm_fan()
 		fi
 		
 		# rk3328-pwm-fan.sh
-		path="${source_path}/target/linux/rockchip/armv8/base-files/usr/bin/"
+		local path="${source_path}/target/linux/rockchip/armv8/base-files/usr/bin/"
 		if [ ! -f "${path}/rk3328-pwm-fan.sh" ]; then
 			# 创建目录
 			mkdir -p ${path}
 			
 			if [ ! -f "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwm-fan.sh" ]; then
-				url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/usr/bin/start-rk3328-pwm-fan.sh"
+				local url="https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3328/base-files/usr/bin/start-rk3328-pwm-fan.sh"
 				${NETWORK_PROXY_CMD} wget -P "${path}" -O "${path}/rk3328-pwm-fan.sh" "${url}"
 			else
 				cp -rf "${OPENWRT_CONFIG_PATH}/pwm-fan/rk3328-pwm-fan.sh"  "${path}"

@@ -184,6 +184,44 @@ remove_packages()
 	fi
 }
 
+# 删除文件中的关键字
+remove_keyword_file()
+{
+	local keyword=$1
+	local file=$2
+	
+	if [ ! -e ${file} ]; then
+		return
+	fi
+	
+	if ! grep -q "${keyword}" ${file}; then
+		return
+	fi
+	
+	sed -i '/'"${keyword}"'/{
+		# # 如果行中只有关键字和行尾的反斜杠，直接删除整行
+		/^[[:space:]]*'"${keyword}"'[[:space:]]*\\[[:space:]]*$/{
+            d
+        }
+		
+		# 替换关键字及其前后的空格为单个空格
+        s/[[:space:]]*'"${keyword}"'[[:space:]]*/ /g
+		
+		# 合并多个空格为单个空格
+		s/[[:space:]]\{2,\}/ /g
+		
+		# 如果关键字在行首，删除前面的空格
+		#s/^[[:space:]]*//
+		
+		# 如果关键字在行尾，删除后面的空格
+		#s/[[:space:]]*$//
+
+	}' ${file}
+	
+	# s/[[:space:]]*'"${keyword}"'[[:space:]]*/ /g
+	#	s/ \+/ /g
+}
+
 #********************************************************************************#
 # 获取文件section
 get_config_section()

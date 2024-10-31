@@ -424,41 +424,40 @@ remove_plugin_package()
 	fi
 	
 	local plugin_array=()
-	if ! get_config_list "${section_name}" "${conf_file}" plugin_array; then
-		print_log "ERROR" "user config" "获取插件配置列表失败, 请检查!"
-		return
+	if get_config_list "${section_name}" "${conf_file}" plugin_array; then
+		echo "${array_json}" | jq -c '.[]' | while read -r item; do
+			# 源码路径
+			source_path=$(echo "$item" | jq -r '.source_path')
+			
+			# 排除路径
+			exclude_json_array=$(echo "$item" | jq -c '.exclude_path')
+			
+			if [ -z "${source_path}" ]; then
+				continue
+			fi
+			
+			# 查找要排除的部分
+			exclude_expr=""
+			
+			if [ -n "${exclude_json_array}" ]; then
+				
+				while read -r exclude_item; do
+					exclude_expr+=" -path ${exclude_item} -o"
+				done < <(echo "$exclude_json_array" | jq -c '.[]')
+				
+				# 去掉最后一个 '-o'
+				exclude_expr="${exclude_expr% -o}"
+			fi
+			
+			for value in "${plugin_array[@]}"; do
+				if [ -z "${exclude_expr}" ]; then
+					find ${source_path} -name "${value}" | xargs rm -rf;
+				else
+					find ${source_path} \( ${exclude_expr} \) -prune -o -name ${value} -print0 | xargs -0 rm -rf;
+				fi
+			done
+		done
 	fi
 	
-	echo "${array_json}" | jq -c '.[]' | while read -r item; do
-		# 源码路径
-		source_path=$(echo "$item" | jq -r '.source_path')
-		
-		# 排除路径
-		exclude_json_array=$(echo "$item" | jq -c '.exclude_path')
-		
-		if [ -z "${source_path}" ]; then
-			continue
-		fi
-		
-		# 查找要排除的部分
-		exclude_expr=""
-		
-		if [ -n "${exclude_json_array}" ]; then
-			
-			while read -r exclude_item; do
-				exclude_expr+=" -path ${exclude_item} -o"
-			done < <(echo "$exclude_json_array" | jq -c '.[]')
-			
-			# 去掉最后一个 '-o'
-			exclude_expr="${exclude_expr% -o}"
-		fi
-		
-		for value in "${plugin_array[@]}"; do
-			if [ -z "${exclude_expr}" ]; then
-				find ${source_path} -name "${value}" | xargs rm -rf;
-			else
-				find ${source_path} \( ${exclude_expr} \) -prune -o -name ${value} -print0 | xargs -0 rm -rf;
-			fi
-		done
-	done
+	
 }

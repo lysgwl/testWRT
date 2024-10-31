@@ -5,56 +5,37 @@
 download_themes_argon()
 {
 	local plugin_path=$1
-	local -n source_array_ref=$2
-	
-	local source_type=${source_array_ref["Type"]}
 
 	# luci-theme-argon
-	{
-		print_log "INFO" "custom config" "获取luci-theme-argon仓库代码..."
-		
-		if [ ${source_type} -eq ${SOURCE_TYPE[openwrt]} ] || [ ${source_type} -eq ${SOURCE_TYPE[immortalwrt]} ]; then
-			local url="https://github.com/jerrykuku/luci-theme-argon.git?ref=master"
-		elif [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-			#url="https://github.com/jerrykuku/luci-theme-argon.git?ref=18.06"
-			local url="https://github.com/jerrykuku/luci-theme-argon.git?ref=master"
-		fi
-		
-		if ! clone_repo_contents $url "${plugin_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}; then
-			print_log "ERROR" "custom config" "获取luci-theme-argons仓库代码失败, 请检查!"
-			return 1
-		fi
-	}
+	print_log "INFO" "custom config" "获取luci-theme-argon仓库代码..."
 	
+	local url="https://github.com/jerrykuku/luci-theme-argon.git?ref=master"
+	if ! clone_repo_contents $url "${plugin_path}/luci-theme-argon" ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取luci-theme-argons仓库代码失败, 请检查!"
+		return 1
+	fi
+
 	# luci-theme-argon-config
-	{
-		print_log "INFO" "custom config" "获取luci-theme-argon-config仓库代码..."
-		
-		if [ ${source_type} -eq ${SOURCE_TYPE[openwrt]} ] || [ ${source_type} -eq ${SOURCE_TYPE[immortalwrt]} ]; then
-			local url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=master"
-		elif [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-			#url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=18.06"
-			local url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=master"
-		fi
-		
-		if ! clone_repo_contents $url "${plugin_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}; then
-			print_log "ERROR" "custom config" "获取luci-theme-argon-config仓库代码失败, 请检查!"
-			return 1
-		fi
-	}
+	print_log "INFO" "custom config" "获取luci-theme-argon-config仓库代码..."
 	
+	local url="https://github.com/jerrykuku/luci-app-argon-config.git?ref=master"
+	if ! clone_repo_contents $url "${plugin_path}/luci-theme-argon-config" ${NETWORK_PROXY_CMD}; then
+		print_log "ERROR" "custom config" "获取luci-theme-argon-config仓库代码失败, 请检查!"
+		return 1
+	fi
+
 	return 0
 }
 
 # 下载 edge主题
 download_themes_edge()
 {
-	print_log "INFO" "custom config" "获取luci-theme-edge仓库代码..."
-	
 	local plugin_path=$1
 
 	# luci-theme-edge	
-	local url="https://github.com/kiddin9/luci-theme-edge.git?ref=18.06"
+	print_log "INFO" "custom config" "获取luci-theme-edge仓库代码..."
+	
+	local url="https://github.com/kiddin9/luci-theme-edge.git?ref=master"
 	if ! clone_repo_contents $url "${plugin_path}/luci-theme-edge" ${NETWORK_PROXY_CMD}; then
 		print_log "ERROR" "custom config" "获取luci-theme-edge仓库代码失败, 请检查!"
 		return 1
@@ -70,19 +51,10 @@ set_default_themes()
 	print_log "INFO" "custom config" "[修改默认主题]"
 	
 	local -n source_array_ref=$1
-	
-	local source_type=${source_array_ref["Type"]}
 	local source_path=${source_array_ref["Path"]}
 	
 	local file="${source_path}/feeds/luci/collections/luci/Makefile"
-	
-	if [ -e ${file} ]; then
-		if [ ${source_type} -eq ${SOURCE_TYPE[openwrt]} ] || [ ${source_type} -eq ${SOURCE_TYPE[immortalwrt]} ]; then
-			sed -i 's/luci-light/luci-theme-argon/g' ${file}
-		elif [ ${source_type} -eq ${SOURCE_TYPE[coolsnowwolf]} ]; then
-			sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' ${file}
-		fi
-	fi
+	sed -i 's/luci-light/luci-theme-argon/g' "${file}"
 }
 
 # 设置主题移除
@@ -118,7 +90,6 @@ set_themes_remove()
 	done
 	
 	local user_json_array=$(build_json_array user_array)
-	echo $user_json_array
 	
 	# themes-config
 	local user_config="themes-config"
@@ -139,7 +110,7 @@ download_user_themes()
 	set_themes_remove $1 $2
 	
 	# 下载 argon 主题
-	if ! download_themes_argon $1 $2; then
+	if ! download_themes_argon $1; then
 		return 1
 	fi
 	
