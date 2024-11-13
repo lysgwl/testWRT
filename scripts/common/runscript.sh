@@ -261,12 +261,17 @@ set_menu_options()
 	local custom_feeds_file=""
 	if [ -n "${USER_CONFIG_ARRAY["userdevice"]}" ] && [ -n "${local_source_array["Alias"]}" ]; then
 		local feeds_file_path="${OPENWRT_CONFIG_PATH}/conf-file/${USER_CONFIG_ARRAY["userdevice"]}"
+		custom_feeds_file="${feeds_file_path}/${local_source_array["Alias"]}"
 		
 		if [ "${USER_CONFIG_ARRAY["nginxcfg"]}" = "1" ]; then
-			custom_feeds_file="${feeds_file_path}/${local_source_array["Alias"]}-nginx-${USER_CONFIG_ARRAY["userdevice"]}.config"
-		else
-			custom_feeds_file="${feeds_file_path}/${local_source_array["Alias"]}-${USER_CONFIG_ARRAY["userdevice"]}.config"
+			custom_feeds_file="${custom_feeds_file}-nginx"
 		fi
+		
+		if [ "${USER_CONFIG_ARRAY["dockercfg"]}" = "1" ]; then
+			custom_feeds_file="${custom_feeds_file}-docker"
+		fi
+		
+		custom_feeds_file="${custom_feeds_file}-${USER_CONFIG_ARRAY["userdevice"]}.config"
 	fi
 	
 	# 进入源码目录

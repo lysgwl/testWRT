@@ -150,6 +150,9 @@ get_diy_config()
 		# nginx配置
 		USER_CONFIG_ARRAY["nginxcfg"]="${fields_array["nginx_cfg"]}"
 		
+		# nginx配置
+		USER_CONFIG_ARRAY["dockercfg"]="${fields_array["docker_cfg"]}"
+		
 		# 编译选项
 		USER_CONFIG_ARRAY["actionopt"]="${fields_array["action_option"]}"
 	}

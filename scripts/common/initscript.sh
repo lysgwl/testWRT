@@ -174,19 +174,20 @@ runLinuxEnv()
 			# 获取设置选项
 			local source_opt="$(echo "${USER_CONFIG_ARRAY["actionopt"]}" | sed 's/^ *//;s/ *$//')"
 			
-			if [ "$index" = "$source_opt" ]; then
-				# 获取源码名称
-				local source_name="${sorted_source_name_array[$key]}"
-				
-				# 获取源码类型
-				local source_type=${SOURCE_TYPE[${source_name}]}
-				
-				declare -A source_array
-				get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
-				if [ ${#source_array[@]} -eq 0 ]; then
-					continue
-				fi
-				
+			# 获取源码名称
+			local source_name="${sorted_source_name_array[$key]}"
+			
+			# 获取源码类型
+			local source_type=${SOURCE_TYPE[${source_name}]}
+			
+			# 获取源码信息
+			declare -A source_array
+			get_struct_field SOURCE_CONFIG_ARRAY ${source_type} source_array
+			if [ ${#source_array[@]} -eq 0 ]; then
+				continue
+			fi
+			
+			if [ "$source_opt" = "$source_name" ] || [ "$source_opt" = "${source_array["Alias"]}" ]; then
 				# 自动编译openwrt
 				auto_compile_openwrt source_array
 				break
