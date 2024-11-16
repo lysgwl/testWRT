@@ -25,7 +25,7 @@ download_golang()
 	
 	print_log "INFO" "custom config" "获取golang仓库代码..."
 	
-	local url="https://github.com/sbwml/packages_lang_golang.git?ref=22.x"
+	local url="https://github.com/sbwml/packages_lang_golang.git?ref=23.x"
 	if ! clone_repo_contents "$url" "${source_path}/feeds/packages/lang/golang" ${NETWORK_PROXY_CMD}; then
 		print_log "ERROR" "custom config" "获取golang仓库代码失败, 请检查!"
 		return 1
@@ -255,7 +255,7 @@ set_plugin_remove()
 	remove_plugin_package "${user_config}" "${OPENWRT_PLUGIN_FILE}" "${user_json_array}"
 	
 	# 删除golang源码目录
-	#rm -rf ${source_path}/feeds/packages/lang/golang
+	rm -rf ${source_path}/feeds/packages/lang/golang
 }
 
 #********************************************************************************#
@@ -277,9 +277,9 @@ download_user_plugin()
 	fi
 
 	# golang
-	#if ! download_golang $2; then
-	#	return 1
-	#fi
+	if ! download_golang $2; then
+		return 1
+	fi
 	
 	return 0
 }
