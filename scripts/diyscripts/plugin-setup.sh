@@ -255,7 +255,7 @@ set_plugin_remove()
 	remove_plugin_package "${user_config}" "${OPENWRT_PLUGIN_FILE}" "${user_json_array}"
 	
 	# 删除golang源码目录
-	rm -rf ${source_path}/feeds/packages/lang/golang
+	#rm -rf ${source_path}/feeds/packages/lang/golang
 }
 
 #********************************************************************************#
@@ -277,9 +277,9 @@ download_user_plugin()
 	fi
 
 	# golang
-	if ! download_golang $2; then
-		return 1
-	fi
+	#if ! download_golang $2; then
+	#	return 1
+	#fi
 	
 	return 0
 }

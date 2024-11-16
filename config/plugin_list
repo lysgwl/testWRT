@@ -6,6 +6,7 @@ luci-app-socat
 alist
 
 [immortalwrt_config]
+[lede_config]
 [themes-config]
 luci-theme-argon
 luci-theme-argon-config
