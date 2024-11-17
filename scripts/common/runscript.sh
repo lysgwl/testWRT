@@ -187,8 +187,8 @@ compile_openwrt_firmware()
 		return 0
 	}
 	
-	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} run_make_command; then
-		print_log "ERROR" "compile firmware" "编译OpenWrt固件失败, 请检查!"
+	if ! execute_command_retry ${USER_STATUS_ARRAY["retrycount"]} ${USER_STATUS_ARRAY["waittimeout"]} run_make_command; then	
+		df -hT && print_log "ERROR" "compile firmware" "编译OpenWrt固件失败, 请检查!"
 		return 1
 	fi
 	

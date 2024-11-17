@@ -227,8 +227,14 @@ setLinuxEnv()
 		set -e
 	fi
 	
-	# 为工作目录赋予权限
+	# 赋予工作目录权限
 	sudo chown $USER:$GROUPS $OPENWRT_WORK_PATH
+	
+	# 设置系统时区
+	sudo timedatectl set-timezone "${USER_CONFIG_ARRAY["zonename"]}"
+	
+	# 显示文件系统的磁盘使用情况
+	df -hT
 	
 	print_log "TRACE" "setting linux" "完成linux环境的设置!"
 }
@@ -284,10 +290,7 @@ updateLinuxEnv()
 	
 	sudo -E apt-get -qq autoremove --purge
 	sudo -E apt-get -qq clean
-
-	df -hT
 	
-	sudo timedatectl set-timezone "${USER_CONFIG_ARRAY["zonename"]}"
 	print_log "TRACE" "update linux" "完成linux环境的更新!"
 }
 
