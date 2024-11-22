@@ -84,12 +84,12 @@ download_siropboy_package()
 
 #********************************************************************************#
 # 设置light插件
-set_light_plugin()
+set_light_depends()
 {
 	local source_path=$1
 	
 	# 删除luci-light插件
-	print_log "INFO" "custom config" "[删除插件luci-light]"
+	print_log "INFO" "custom config" "[设置插件luci-light依赖]"
 	
 	local file="${source_path}/feeds/luci/collections/luci-light"
 	if [ -d ${file} ]; then	
@@ -97,20 +97,20 @@ set_light_plugin()
 	fi
 	
 	# 取消luci-ssl对luci-light依赖
-	print_log "INFO" "custom config" "[修改插件luci-ssl]"
+	print_log "INFO" "custom config" "[设置插件luci-ssl依赖]"
 	
 	local file="${source_path}/feeds/luci/collections/luci-ssl/Makefile"
 	remove_keyword_file "+luci-light" ${file}
 	
 	# 取消luci-ssl-openssl对luci-light依赖
-	print_log "INFO" "custom config" "[修改插件luci-ssl-openssl]"
+	print_log "INFO" "custom config" "[设置插件luci-ssl-openssl依赖]"
 	
 	local file="${source_path}/feeds/luci/collections/luci-ssl-openssl/Makefile"
 	remove_keyword_file "+luci-light" ${file}
 }
 
 # 设置uhttpd插件依赖
-set_uhttpd_plugin()
+set_uhttpd_depends()
 {
 	local source_path=$1
 	
@@ -118,7 +118,7 @@ set_uhttpd_plugin()
 		return
 	fi
 	
-	print_log "INFO" "custom config" "[修改uhttpd编译]"
+	print_log "INFO" "custom config" "[设置uhttpd编译依赖]"
 	local file="${source_path}/feeds/luci/collections/luci/Makefile"
 	
 	# 取消uhttpd依赖
@@ -129,21 +129,33 @@ set_uhttpd_plugin()
 }
 
 # 设置bootstrap插件
-set_bootstrap_plugin()
+set_bootstrap_depends()
 {
 	local source_path=$1
 	
 	# 取消luci-nginx对luci-theme-bootstrap依赖
-	print_log "INFO" "custom config" "[修改插件luci-nginx]"
+	print_log "INFO" "custom config" "[设置插件luci-nginx依赖]"
 	
 	local file="${source_path}/feeds/luci/collections/luci-nginx/Makefile"
 	remove_keyword_file "+luci-theme-bootstrap" ${file}
 	
 	# 取消luci-ssl-nginx对luci-theme-bootstrap依赖
-	print_log "INFO" "custom config" "[修改插件luci-ssl-nginx]"
+	print_log "INFO" "custom config" "[设置插件luci-ssl-nginx依赖]"
 	
 	local file="${source_path}/feeds/luci/collections/luci-ssl-nginx/Makefile"
 	remove_keyword_file "+luci-theme-bootstrap" ${file}
+}
+
+# 设置docker插件
+set_docker_depends()
+{
+	local source_path=$1
+	
+	# 取消luci-app-dockerman对docker-compose依赖
+	print_log "INFO" "custom config" "[设置插件luci-app-dockerman依赖]"
+	
+	local file="${source_path}/feeds/luci/applications/luci-app-dockerman/Makefile"
+	remove_keyword_file "+docker-compose" ${file}
 }
 
 # 设置nginx插件
@@ -180,14 +192,17 @@ set_plugin_depends()
 	
 	local source_path=${source_array_ref["Path"]}
 	
-	# 设置uhttpd插件依赖
-	set_uhttpd_plugin ${source_path}
+	# 设置uhttpd依赖
+	set_uhttpd_depends ${source_path}
 	
-	# 设置light插件
-	set_light_plugin ${source_path}
+	# 设置light依赖
+	set_light_depends ${source_path}
 	
-	# 设置bootstrap插件
-	set_bootstrap_plugin ${source_path}
+	# 设置bootstrap依赖
+	set_bootstrap_depends ${source_path}
+	
+	# 设置docker依赖
+	set_docker_depends ${source_path}
 }
 
 # 设置插件UI 
