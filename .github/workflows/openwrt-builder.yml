@@ -60,13 +60,12 @@ jobs:
           if [ -x "${scripts_file}" ]; then
               source ${scripts_file} 1
           fi
+          
+          echo "++${FIRMWARE_JSON_ARRAY}--"
 
           # 检查固件信息
           if [ -z "${FIRMWARE_JSON_ARRAY}" ]; then
               echo "Firmware does not exist, Please check!"
-              exit 1
-          elif echo "${FIRMWARE_JSON_ARRAY}" | jq 'length == 0'; then
-              echo "Firmware Info is empty, Please check!"
               exit 1
           fi
 
