@@ -83,7 +83,7 @@ jobs:
           FIRMWARE_JSON: ${{ steps.compile-scripts.outputs.firmware_json}}
         run: |
           #echo "matrix=$(echo $FIRMWARE_JSON | jq -c 'map({file: .})')" >> $GITHUB_OUTPUT
-          echo $FIRMWARE_JSONf
+          echo $FIRMWARE_JSON
           
       - name: Debug firmware-json
         run: |
