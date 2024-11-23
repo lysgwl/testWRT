@@ -56,6 +56,8 @@ get_openwrt_firmware()
 	dd if=/dev/zero of="${src_path}/test.img" bs=1M count=1
 	gzip "${src_path}/test.img"
 	
+	ls -al
+	
 	# 判断目录是否为空
 	if [ ! -n "$(find . -mindepth 1)" ]; then
 		print_log "ERROR" "compile firmware" "固件目录为空, 请检查!"
