@@ -96,4 +96,9 @@ jobs:
       - name: Check matrix
         id: check-matrix
         run: |
-            echo "${{ matrix.firmware }}"      
+            firmware_list=${{ matrix.firmware }}
+            
+            for item in $(echo "${firmware_list}" | jq -c '.[]'); do
+                file_path=$(echo $item | jq -r '.file')
+                echo $file_path
+            done    
