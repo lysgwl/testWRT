@@ -101,12 +101,16 @@ jobs:
         id: check-matrix
         run: |
           echo "Matrix: ${{ fromJson(needs.build.outputs.firmware-json) }}"
-          firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
           
-          for item in $(echo "${firmware_list}" | jq -c '.[]'); do
+          firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
+          echo "${firmware_list}"
+          
+          $(echo "${firmware_list}" | jq -c '.[]')
+          
+          #for item in $(echo "${firmware_list}" | jq -c '.[]'); do
               #file_path=$(echo $item | jq -r '.file')
               #echo $file_path
               echo "111"
-          done
+          #done
             
             
