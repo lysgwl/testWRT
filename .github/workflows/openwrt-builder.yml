@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware-json: ${{ steps.compile-scripts.outputs.firmware_json }} 
+      firmware-json: ${{ steps.set-matrix.outputs.matrix }} 
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -74,13 +74,13 @@ jobs:
           # 设置输出
           echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
 
-      - name: Extract Firmware Details
-        id: extract_firmware_info 
+      - name: Set matrix
+        id: set-matrix
         env:
           # 获取 JSON 字符串
           FIRMWARE_JSON: ${{ steps.compile-scripts.outputs.firmware_json}}
         run: |
-          echo ${FIRMWARE_JSON}
+          echo "matrix=$(echo $FIRMWARE_JSON | jq -c 'map({file: .})')" >> $GITHUB_OUTPUT
 
   upload:
     needs: build
@@ -88,9 +88,12 @@ jobs:
     strategy:
       matrix:
         firmware:
-          ${{ fromJson(needs.build.outputs.firmware-json) }}
+          ${{ fromJson(needs.build.outputs.matrix) }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        
       - name: Check matrix
+        id: check-matrix
         run: |
-            echo "cur dir_name=${{ matrix.firmware.name }}"
-            echo "cur dir_path=${{ matrix.firmware.path }}"      
+            echo "${{ matrix.firmware }}"      
