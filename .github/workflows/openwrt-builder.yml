@@ -88,7 +88,7 @@ jobs:
     strategy:
       matrix:
         firmware:
-          ${{ fromJson(needs.build.outputs.matrix) }}
+          ${{ fromJson(needs.build.outputs.firmware-json) }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
