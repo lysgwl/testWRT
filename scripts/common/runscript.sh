@@ -16,6 +16,10 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
+	ls -al 
+	
+	cat "$path/.config"
+	
 	# ------
 	src_path="${path}/bin/targets/x86/generic"
 	mkdir -p ${src_path}
@@ -88,7 +92,7 @@ get_openwrt_firmware()
 		# 拷贝文件	
 		rsync -av \
 			--exclude='packages/' \
-			#--include="*${device_name}*.img.gz" 
+			--include="*${device_name}*.img.gz" \
 			--include="*${device_name}*.manifest" \
 			--exclude='*.img.gz' \
 			--exclude='*.manifest' \
