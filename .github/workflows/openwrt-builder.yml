@@ -93,8 +93,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        firmware:
-          ${{ fromJson(needs.build.outputs.firmware) }}
+        firmware: ${{ fromJson(needs.build.outputs.firmware) }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
