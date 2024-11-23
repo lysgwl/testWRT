@@ -81,6 +81,10 @@ jobs:
           FIRMWARE_JSON: ${{ steps.compile-scripts.outputs.firmware_json}}
         run: |
           echo "matrix=$(echo $FIRMWARE_JSON | jq -c 'map({file: .})')" >> $GITHUB_OUTPUT
+          
+      - name: Debug firmware-json
+        run: |
+          echo "firmware-json: ${{ steps.set-matrix.outputs.matrix }}"    
 
   upload:
     needs: build
@@ -96,6 +100,8 @@ jobs:
       - name: Check matrix
         id: check-matrix
         run: |
+            echo "Matrix: ${{ fromJson(needs.build.outputs.firmware-json) }}"
+            
             firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
             
             for item in $(echo "${firmware_list}" | jq -c '.[]'); do
