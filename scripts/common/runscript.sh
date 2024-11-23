@@ -16,11 +16,10 @@ get_openwrt_firmware()
 		return 1
 	fi
 	
-	ls -al 
-	
 	# ------
 	src_path="${path}/bin/targets/x86/generic"
 	mkdir -p ${src_path}
+	# ------
 	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
 		print_log "ERROR" "compile firmware" "固件目录不存在, 请检查!"
@@ -54,8 +53,7 @@ get_openwrt_firmware()
 	echo "this is a test2" > "${src_path}/test2.txt"
 	echo "this is a test3" > "${src_path}/test3.txt"
 	echo "this is a test4" > "${src_path}/test4.txt"
-	
-	ls -al
+	# ------
 	
 	# 判断目录是否为空
 	if [ ! -n "$(find . -mindepth 1)" ]; then
@@ -77,8 +75,10 @@ get_openwrt_firmware()
 			continue
 		fi
 		
+		# ------
 		dd if=/dev/zero of="${src_path}/test-${device_name}.img" bs=1M count=1
 		gzip "${src_path}/test-${device_name}.img"
+		# ------
 		
 		# 导出固件路径
 		local firmware_path="${target_path}/${firmware_name}"

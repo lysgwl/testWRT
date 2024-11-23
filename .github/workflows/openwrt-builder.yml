@@ -61,8 +61,6 @@ jobs:
               source ${scripts_file} 1
           fi
           
-          echo "++${FIRMWARE_JSON_ARRAY}--"
-
           # 检查固件信息
           if [ -z "${FIRMWARE_JSON_ARRAY}" ]; then
               echo "Firmware does not exist, Please check!"
@@ -71,6 +69,7 @@ jobs:
 
           # 获取 JSON 数组
           JSON_ARRAY="${FIRMWARE_JSON_ARRAY}"
+          echo ${JSON_ARRAY}
 
           # 设置输出
           echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
@@ -79,9 +78,9 @@ jobs:
         id: extract_firmware_info 
         env:
           # 获取 JSON 字符串
-          FIRMWARE_JSON: ${{ needs.compile-scripts.firmware_json}}
+          FIRMWARE_JSON: ${{ needs.compile-scripts.outputs.firmware_json}}
         run: |
-          echo "${FIRMWARE_JSON}"
+          echo ${FIRMWARE_JSON}
 
   upload:
     needs: build
