@@ -18,8 +18,6 @@ get_openwrt_firmware()
 	
 	ls -al 
 	
-	cat "$path/.config"
-	
 	# ------
 	src_path="${path}/bin/targets/x86/generic"
 	mkdir -p ${src_path}
@@ -57,9 +55,6 @@ get_openwrt_firmware()
 	echo "this is a test3" > "${src_path}/test3.txt"
 	echo "this is a test4" > "${src_path}/test4.txt"
 	
-	dd if=/dev/zero of="${src_path}/test-${device_name}.img" bs=1M count=1
-	gzip "${src_path}/test-${device_name}.img"
-	
 	ls -al
 	
 	# 判断目录是否为空
@@ -81,6 +76,9 @@ get_openwrt_firmware()
 		if [ -z "${device_name}" ] || [ -z "${firmware_name}" ]; then
 			continue
 		fi
+		
+		dd if=/dev/zero of="${src_path}/test-${device_name}.img" bs=1M count=1
+		gzip "${src_path}/test-${device_name}.img"
 		
 		# 导出固件路径
 		local firmware_path="${target_path}/${firmware_name}"
