@@ -202,7 +202,7 @@ set_plugin_depends()
 	set_bootstrap_depends ${source_path}
 	
 	# 设置docker依赖
-	set_docker_depends ${source_path}
+	#set_docker_depends ${source_path}
 }
 
 # 设置插件UI 
