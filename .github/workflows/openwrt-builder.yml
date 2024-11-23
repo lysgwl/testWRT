@@ -84,7 +84,8 @@ jobs:
           
       - name: Debug firmware-json
         run: |
-          echo "firmware-json: ${{ steps.set-matrix.outputs.matrix }}"    
+          echo "firmware-json: ${{ steps.set-matrix.outputs.matrix }}" 
+          echo "firmware-json (raw): ${{ needs.build.outputs.firmware-json }}"  
 
   upload:
     needs: build
@@ -105,12 +106,9 @@ jobs:
           firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
           echo "${firmware_list}"
           
-          $(echo "${firmware_list}" | jq -c '.[]')
-          
           #for item in $(echo "${firmware_list}" | jq -c '.[]'); do
               #file_path=$(echo $item | jq -r '.file')
               #echo $file_path
-              echo "111"
+              #echo "111"
           #done
-            
             
