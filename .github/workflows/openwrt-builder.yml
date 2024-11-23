@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware-json: ${{ steps.set-matrix.outputs.matrix }} 
+      firmware: ${{ steps.set-matrix.outputs.matrix }} 
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -84,8 +84,8 @@ jobs:
           
       - name: Debug firmware-json
         run: |
-          echo "firmware-json: ${{ steps.set-matrix.outputs.matrix }}" 
-          echo "firmware-json (raw): ${{ needs.build.outputs.firmware-json }}"  
+          echo "firmware-json: ${{ steps.compile-scripts.outputs.firmware_json }}" 
+          #echo "firmware-json (raw): ${{ needs.build.outputs.firmware }}"  
 
   upload:
     needs: build
@@ -93,7 +93,7 @@ jobs:
     strategy:
       matrix:
         firmware:
-          ${{ fromJson(needs.build.outputs.firmware-json) }}
+          ${{ fromJson(needs.build.outputs.firmware) }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
