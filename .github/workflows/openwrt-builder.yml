@@ -67,9 +67,11 @@ jobs:
               exit 1
           fi
 
-          # 获取 JSON 数组
-          JSON_ARRAY="${FIRMWARE_JSON_ARRAY}"
-          echo ${JSON_ARRAY}
+          # 获取 JSON 数组 "${FIRMWARE_JSON_ARRAY}"
+          JSON_ARRAY='["ubuntu-latest","macos-latest"]'
+          
+          list=$(echo ${JSON_ARRAY} | jq -c)
+          echo $list
 
           # 设置输出
           echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
@@ -80,12 +82,12 @@ jobs:
           # 获取 JSON 字符串
           FIRMWARE_JSON: ${{ steps.compile-scripts.outputs.firmware_json}}
         run: |
-          echo "matrix=$(echo $FIRMWARE_JSON | jq -c 'map({file: .})')" >> $GITHUB_OUTPUT
+          #echo "matrix=$(echo $FIRMWARE_JSON | jq -c 'map({file: .})')" >> $GITHUB_OUTPUT
+          echo $FIRMWARE_JSONf
           
       - name: Debug firmware-json
         run: |
-          echo "firmware-json: ${{ steps.compile-scripts.outputs.firmware_json }}" 
-          #echo "firmware-json (raw): ${{ needs.build.outputs.firmware }}"  
+          echo "firmware-json: ${{ steps.compile-scripts.outputs.firmware_json }}"   
 
   upload:
     needs: build
