@@ -374,7 +374,7 @@ get_firmware_info()
 	fi
 	
 	# 架构名称
-	arch_name=$(sed -n -r 's/^CONFIG_TARGET_DEVICE_(.*)_DEVICE.*=y/\1/p' "${source_path}/${defaultconf}" | head -n 1)
+	arch_name=$(sed -n -r 's/^CONFIG_TARGET_(.*)_DEVICE.*=y/\1/p' "${source_path}/${defaultconf}" | head -n 1)
 	arch_name=$(echo "${arch_name}" | sed 's/_/-/g')
 	
 	result["name"]="openwrt-${arch_name}"

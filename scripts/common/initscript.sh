@@ -319,7 +319,7 @@ runAppLinux()
 	initLinuxEnv
 	
 	# 更新linux环境
-	updateLinuxEnv
+	#updateLinuxEnv
 	
 	# 设置linux环境
 	setLinuxEnv

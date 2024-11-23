@@ -62,24 +62,16 @@ jobs:
           fi
 
           # 检查固件信息
-          if [ -z "${FIRMWARE_JSON_OBJECT}" ]; then
+          if [ -z "${FIRMWARE_JSON_ARRAY}" ]; then
               echo "Firmware does not exist, Please check!"
+              exit 1
+          elif echo "${FIRMWARE_JSON_ARRAY}" | jq 'length == 0'; then
+              echo "Firmware Info is empty, Please check!"
               exit 1
           fi
 
-          # 验证 JSON 对象是否为空
-          if ! jq empty --argjson json "${FIRMWARE_JSON_OBJECT}" > /dev/null; then
-              echo "Invalid JSON: $FIRMWARE_JSON_OBJECT"
-              exit 1
-          fi
           # 获取 JSON 数组
-          JSON_ARRAY=$(jq '.items' <<< "${FIRMWARE_JSON_OBJECT}")
-          
-          # 将 JSON 字符串进行 Base64 编码
-          ENCODED_JSON=$(echo -n "${FIRMWARE_JSON_OBJECT}" | base64 | tr -d '\n')
-          
-          # 将 Base64 编码的字符串保存到 GITHUB_ENV
-          echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_ENV
+          JSON_ARRAY="${FIRMWARE_JSON_ARRAY}"
 
           # 设置输出
           echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
@@ -87,66 +79,11 @@ jobs:
       - name: Extract Firmware Details
         id: extract_firmware_info 
         env:
-          # 获取 Base64 编码的 JSON 字符串
-          ENCODED_FIRMWARE_JSON: ${{ env.encoded_json }}
+          # 获取 JSON 字符串
+          FIRMWARE_JSON: ${{ needs.compile-scripts.firmware_json}}
         run: |
-          # Base64 解码 JSON 字符串
-          FIRMWARE_JSON=$(echo "$ENCODED_FIRMWARE_JSON" | base64 --decode)
+          echo "${FIRMWARE_JSON}"
 
-          # 获取 count 字段的值
-          count=$(jq -r '.count' <<< "${FIRMWARE_JSON}")
-          if [ ${count} -eq 0 ]; then
-              echo "Firmware does not exist, Please check!"
-              exit 1
-          fi
-
-          if [ ${count} -gt 1 ]; then
-              name=$(jq -r '.name' <<< "${FIRMWARE_JSON}")
-              path=$(jq -r '.path' <<< "${FIRMWARE_JSON}")
-          else
-              json_array=$(jq '.items' <<< "${FIRMWARE_JSON}")
-              if [ -z "${json_array}" ] || ! jq empty <<< "${json_array}"; then
-                  echo "Firmware JSON array format is invalid, Please check!"
-                  exit 1
-              fi
-
-              items_object=$(jq '.[0]' <<< "${json_array}")
-              if [ -z "${items_object}" ] || ! jq empty <<< "${items_object}"; then
-                  echo "Firmware JSON object format is invalid, Please check!"
-                  exit 1
-              fi
-
-              name=$(jq -r '.name' <<< "${items_object}")
-              path=$(jq -r '.file' <<< "${items_object}")
-          fi
-          
-          if [ -z "${name}" ] || [ -z "${path}" ]; then
-              echo "Get Firmware information is Failed, please check!"
-              exit 1
-          fi
-
-          # 设置输出
-          echo "firmware_name=${name}" >> $GITHUB_OUTPUT
-          echo "firmware_path=${path}" >> $GITHUB_OUTPUT
-          
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@v4
-        if: env.UPLOAD_FIRMWARE == 'true' && 
-            steps.extract_firmware_info.outputs.firmware_name != '' &&
-            steps.extract_firmware_info.outputs.firmware_path != '' &&
-            !cancelled()
-        with:
-          name: ${{ steps.extract_firmware_info.outputs.firmware_name }}
-          path: ${{ steps.extract_firmware_info.outputs.firmware_path }}
-
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v2  # main
-        with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          repository: ${{ github.repository }}
-          retain_days: 7
-          keep_minimum_runs: 2
-          
   upload:
     needs: build
     runs-on: ubuntu-22.04
