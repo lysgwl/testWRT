@@ -88,7 +88,7 @@ get_openwrt_firmware()
 		# 拷贝文件	
 		rsync -av \
 			--exclude='packages/' \
-			--include="*${device_name}*.img.gz" \
+			#--include="*${device_name}*.img.gz" 
 			--include="*${device_name}*.manifest" \
 			--exclude='*.img.gz' \
 			--exclude='*.manifest' \
