@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware: ${{ steps.set-matrix.outputs.matrix }} 
+      firmware: ${{ steps.compile-scripts.outputs.firmware_json }} 
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -71,7 +71,6 @@ jobs:
           JSON_ARRAY='["ubuntu-latest","macos-latest"]'
           
           list=$(echo ${JSON_ARRAY} | jq -c)
-          echo $list
 
           # 设置输出
           echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
@@ -103,10 +102,10 @@ jobs:
       - name: Check matrix
         id: check-matrix
         run: |
-          echo "Matrix: ${{ fromJson(needs.build.outputs.firmware-json) }}"
+          echo "Matrix: ${{ matrix.firmware }}"
           
-          firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
-          echo "${firmware_list}"
+          #firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
+          #echo "${firmware_list}"
           
           #for item in $(echo "${firmware_list}" | jq -c '.[]'); do
               #file_path=$(echo $item | jq -r '.file')
