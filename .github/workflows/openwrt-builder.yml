@@ -128,6 +128,8 @@ jobs:
         run: |
           json_object=${{ fromJson(steps.extract_firmware_info.outputs.firmware_json) }}
           
-          for item in $json_object; do
-              echo $item
+          json_str=${{ toJSON(json_object) }}
+          
+          for item in $(echo $json_str | jq -r '.[]'); do
+              echo "Item: $item"
           done
