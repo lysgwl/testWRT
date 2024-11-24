@@ -124,7 +124,7 @@ jobs:
           name: ${{ steps.extract_firmware_info.outputs.name }}
           path: ${{ steps.extract_firmware_info.outputs.path }}
           
-      - name: Debug firmware-json
+      - name: Debug Firmware Json
         run: |
           json_obj=${{ fromJson(steps.extract_firmware_info.outputs.firmware_json) }}
           
