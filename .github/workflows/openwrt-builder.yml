@@ -67,22 +67,22 @@ jobs:
               echo "Firmware does not exist, Please check!"
               exit 1
           fi
-
-          # 获取 JSON 数组
-          JSON_ARRAY=$(jq '.firmware' <<< "${FIRMWARE_JSON_OBJECT}")
           
-          echo "${FIRMWARE_JSON_OBJECT}"
+          # JSON对象进行 Base64 编码
+          ENCODED_JSON=$(echo -n "${FIRMWARE_JSON_OBJECT}" | base64 | tr -d '\n')
 
-          echo -e "firmware_object=${FIRMWARE_JSON_OBJECT}" >> $GITHUB_OUTPUT 
+          # 设置 Base64 编码输出
+          echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_OUTPUT 
           
       - name: Extract Firmware Details
         id: extract_firmware_info
+        env:
+          # 获取 Base64 编码信息
+          ENCODED_JSON: ${{ steps.compile-scripts.outputs.encoded_json }}
         run: |
-          echo "DEBUG: info=${{ steps.compile-scripts.outputs.firmware_object }}"
+          echo "base64:${ENCODED_JSON}"
           
-          info=${{ steps.compile-scripts.outputs.firmware_object }}
+          # Base64 解码 JSON 对象
+          firmware_json_object=$(echo "$ENCODED_JSON" | base64 --decode)
           
-          echo "DEBUG: info=$info"
-          
-          name=$(jq -r '.name' <<< "${info}" 2>/dev/null)
-          echo "$name"
+          echo "object:${firmware_json_object}"
