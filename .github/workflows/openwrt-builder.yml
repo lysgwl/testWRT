@@ -80,4 +80,4 @@ jobs:
           info=${{ steps.compile-scripts.outputs.firmware_object }}
           
           name=$(jq -r '.name' <<< "${info}")
-          echo $name
+          echo "$name"
