@@ -85,4 +85,18 @@ jobs:
           # Base64 解码 JSON 对象
           firmware_json_object=$(echo "$ENCODED_JSON" | base64 --decode)
           
-          echo "object:${firmware_json_object}"
+          # 获取 count 字段
+          count=$(jq -r '.count' <<< "${firmware_json_object}")
+          if [ ${count} -le 0 ]; then
+              echo "Firmware does not exist, Please check!"
+              exit 1
+          fi
+          
+          # 获取 name 字段
+          name=$(jq -r '.name' <<< "${firmware_json_object}")
+          
+          # 获取 path 字段
+          path=$(jq -r '.path' <<< "${firmware_json_object}")
+          
+          echo "name:${name}"
+          echo "path:${path}"
