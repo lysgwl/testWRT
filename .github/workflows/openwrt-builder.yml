@@ -154,4 +154,4 @@ jobs:
         with:
           name: ${{ matrix.firmware.name }}
           path: ${{ matrix.firmware.file }} 
-          retention-days: 7
+          compression-level: 0
