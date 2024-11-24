@@ -19,6 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
+      name: ${{ steps.extract_firmware_info.outputs.name }}
+      path: ${{ steps.extract_firmware_info.outputs.path }}
       firmware: ${{ steps.extract_firmware_info.outputs.firmware_json }}
       
     steps:
@@ -138,4 +140,13 @@ jobs:
           ${{ fromJson(needs.build.outputs.firmware) }}
           
     steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        
+      - name: Download Firmware Folder
+        uses: actions/download-artifact@main
+        with:
+          name: ${{ needs.build.outputs.name }}
+          path: ${{ needs.build.outputs.path }}
+          
       - run: echo ${{ matrix.firmware }} 
