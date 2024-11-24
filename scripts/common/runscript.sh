@@ -123,7 +123,13 @@ get_openwrt_firmware()
 			
 			# 遍历固件目录
 			while IFS= read -r -d '' file; do
-				firmware_json_array+=("${file}")
+				# 输出对象数组
+				declare -A object_array=(
+					["name"]="$(basename ${file})"
+					["file"]="${file}"
+				)
+				
+				firmware_json_array+=("$(build_json_object object_array)")
 			done < <(find "${firmware_path}" -type f -name "*.img.gz" -print0)	
 		done
 		
