@@ -128,7 +128,7 @@ jobs:
         run: |
           json_obj=${{ fromJson(steps.extract_firmware_info.outputs.firmware_json) }}
           
-          for item in $json_obj; do
+          for item in ${{ toJSON(json_obj) }}; do
               echo $item
           done
         
