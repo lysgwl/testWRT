@@ -70,6 +70,8 @@ jobs:
 
           # 获取 JSON 数组
           JSON_ARRAY=$(jq '.firmware' <<< "${FIRMWARE_JSON_OBJECT}")
+          
+          echo "${FIRMWARE_JSON_OBJECT}"
 
           echo "firmware_object=${FIRMWARE_JSON_OBJECT}" >> $GITHUB_OUTPUT 
           
