@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware: ${{ steps.set-matrix.outputs.matrix }}
+      firmware: ${{ steps.extract_firmware_info.outputs.firmware_json }}
       
     steps:
       - name: Checkout
@@ -128,6 +128,14 @@ jobs:
         run: |
           json_str=${{ steps.extract_firmware_info.outputs.firmware_json }}
           
-          for item in $(echo $json_str | jq -r '.[]'); do
-              echo "Item: $item"
-          done
+  upload:
+    runs-on: ubuntu-22.04
+    needs: build
+    
+    strategy:
+      matrix:
+        firmware:
+          ${{ fromJson(needs.build.outputs.firmware) }}
+          
+    steps:
+      - run: echo ${{ matrix.firmware }} 

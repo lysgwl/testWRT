@@ -244,6 +244,7 @@ updateLinuxEnv()
 {
 	print_log "TRACE" "update linux" "正在更新linux环境，请等待..."
 	
+	: "
 	if [ ${USER_CONFIG_ARRAY["mode"]} -eq ${COMPILE_MODE[remote_compile]} ]; then
 		# 列出前100个比较大的包
 		#dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
@@ -282,6 +283,7 @@ updateLinuxEnv()
             /opt/ghc \
             /opt/hostedtoolcache/CodeQL
 	fi
+	"
 	
 	sudo -E apt-get -qq update
 	sudo -E apt-get -qq upgrade
@@ -319,7 +321,9 @@ runAppLinux()
 	initLinuxEnv
 	
 	# 更新linux环境
-	updateLinuxEnv
+	#updateLinuxEnv
+	
+	sudo -E apt-get -qq install -y jq
 	
 	# 设置linux环境
 	setLinuxEnv
