@@ -68,8 +68,7 @@ jobs:
               exit 1
           fi
 
-          # 获取 JSON 数组 "${FIRMWARE_JSON_OBJECT}"
-          # JSON_ARRAY='["ubuntu-latest","macos-latest"]'
+          # 获取 JSON 数组
           JSON_ARRAY=$(jq '.firmware' <<< "${FIRMWARE_JSON_OBJECT}")
 
           echo "firmware_object=${FIRMWARE_JSON_OBJECT}" >> $GITHUB_OUTPUT 
@@ -77,7 +76,11 @@ jobs:
       - name: Extract Firmware Details
         id: extract_firmware_info
         run: |
+          echo "DEBUG: info=${{ steps.compile-scripts.outputs.firmware_object }}"
+          
           info=${{ steps.compile-scripts.outputs.firmware_object }}
           
-          name=$(jq -r '.name' <<< "${info}")
+          echo "DEBUG: info=$info"
+          
+          name=$(jq -r '.name' <<< "${info}" 2>/dev/null)
           echo "$name"
