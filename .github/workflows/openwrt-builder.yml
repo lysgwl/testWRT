@@ -109,9 +109,9 @@ jobs:
           
       - name: Upload Firmware Folder
         uses: actions/upload-artifact@main
-        if: !cancelled() &&
-            steps.extract_firmware_info.outputs.name != '' &&
-            steps.extract_firmware_info.outputs.path != ''
+        if: steps.extract_firmware_info.outputs.name != '' &&
+            steps.extract_firmware_info.outputs.path != '' &&
+            !cancelled()
         with:
           name: ${{ steps.extract_firmware_info.outputs.name }}
           path: ${{ steps.extract_firmware_info.outputs.path }}
