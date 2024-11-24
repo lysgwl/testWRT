@@ -73,7 +73,7 @@ jobs:
           
           echo "${FIRMWARE_JSON_OBJECT}"
 
-          echo "firmware_object=${FIRMWARE_JSON_OBJECT}" >> $GITHUB_OUTPUT 
+          echo -e "firmware_object=${FIRMWARE_JSON_OBJECT}" >> $GITHUB_OUTPUT 
           
       - name: Extract Firmware Details
         id: extract_firmware_info
