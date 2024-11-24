@@ -126,9 +126,8 @@ jobs:
           
       - name: Debug Firmware Json
         run: |
-          json_obj=${{ fromJson(steps.extract_firmware_info.outputs.firmware_json) }}
+          json_object=${{ fromJson(steps.extract_firmware_info.outputs.firmware_json) }}
           
-          for item in ${{ toJSON(json_obj) }}; do
+          for item in $json_object; do
               echo $item
           done
-        
