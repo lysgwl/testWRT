@@ -19,7 +19,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      firmware: ${{ steps.set-matrix.outputs.matrix }} 
+      firmware: ${{ steps.set-matrix.outputs.matrix }}
+      
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -62,49 +63,21 @@ jobs:
           fi
           
           # 检查固件信息
-          if [ -z "${FIRMWARE_JSON_ARRAY}" ]; then
+          if [ -z "${FIRMWARE_JSON_OBJECT}" ]; then
               echo "Firmware does not exist, Please check!"
               exit 1
           fi
 
-          # 获取 JSON 数组 "${FIRMWARE_JSON_ARRAY}"
-          JSON_ARRAY='["ubuntu-latest","macos-latest"]'
+          # 获取 JSON 数组 "${FIRMWARE_JSON_OBJECT}"
+          # JSON_ARRAY='["ubuntu-latest","macos-latest"]'
+          JSON_ARRAY=$(jq '.firmware' <<< "${FIRMWARE_JSON_OBJECT}")
 
-          # 设置输出
-          echo "firmware_json=$(jq -c . <<< "${JSON_ARRAY}")" >> $GITHUB_OUTPUT
-
-      - name: Set matrix
-        id: set-matrix
-        env:
-          # 获取 JSON 字符串
-          FIRMWARE_JSON: ${{ steps.compile-scripts.outputs.firmware_json}}
-        run: |
-          echo "matrix=$(echo $FIRMWARE_JSON | jq -c 'map({file: .})')" >> $GITHUB_OUTPUT
+          echo "firmware_object=${FIRMWARE_JSON_OBJECT}" >> $GITHUB_OUTPUT 
           
-      - name: Debug firmware-json
+      - name: Extract Firmware Details
+        id: extract_firmware_info
         run: |
-          echo "firmware: ${{ steps.set-matrix.outputs.matrix }}"   
-
-  upload:
-    needs: build
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        firmware: ${{ fromJson(needs.build.outputs.firmware) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@master
-        
-      - name: Check matrix
-        id: check-matrix
-        run: |
-          echo "Matrix: ${{ matrix.firmware }}"
+          info=${{ steps.compile-scripts.outputs.firmware_object }}
           
-          #firmware_list=${{ fromJson(needs.build.outputs.firmware-json) }}
-          #echo "${firmware_list}"
-          
-          #for item in $(echo "${firmware_list}" | jq -c '.[]'); do
-              #file_path=$(echo $item | jq -r '.file')
-              #echo $file_path
-              #echo "111"
-          #done
+          name=$(jq -r '.name' <<< "${info}")
+          echo $name
