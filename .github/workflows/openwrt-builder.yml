@@ -70,6 +70,8 @@ jobs:
           
           # JSON对象进行 Base64 编码
           ENCODED_JSON=$(echo -n "${FIRMWARE_JSON_OBJECT}" | base64 | tr -d '\n')
+          
+          echo $FIRMWARE_JSON_OBJECT
 
           # 设置 Base64 编码输出
           echo "encoded_json=${ENCODED_JSON}" >> $GITHUB_OUTPUT 
@@ -103,9 +105,15 @@ jobs:
               exit 1
           fi
           
-          # 设置输出
+          # 获取 json 数组
+          firmware_json_array=$(jq '.firmware' <<< "${firmware_json_object}")
+          
+          # 设置变量输出
           echo "name=${name}" >> $GITHUB_OUTPUT
           echo "path=${path}" >> $GITHUB_OUTPUT
+          
+          # 设置数组输出
+          echo "firmware_json=$(jq -c . <<< "${firmware_json_array}")" >> $GITHUB_OUTPUT
           
       - name: Upload Firmware Folder
         uses: actions/upload-artifact@main
@@ -115,3 +123,12 @@ jobs:
         with:
           name: ${{ steps.extract_firmware_info.outputs.name }}
           path: ${{ steps.extract_firmware_info.outputs.path }}
+          
+      - name: Debug firmware-json
+        run: |
+          json_obj=${{ fromJson(steps.extract_firmware_info.outputs.firmware_json) }}
+          
+          for item in $json_obj; do
+              echo $item
+          done
+        
