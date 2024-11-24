@@ -76,8 +76,11 @@ get_openwrt_firmware()
 		fi
 		
 		# ------
-		dd if=/dev/zero of="${src_path}/test-${device_name}.img" bs=1M count=1
-		gzip "${src_path}/test-${device_name}.img"
+		dd if=/dev/zero of="${src_path}/test1-${device_name}.img" bs=1M count=1
+		dd if=/dev/zero of="${src_path}/test2-${device_name}.img" bs=1M count=1
+		
+		gzip "${src_path}/test1-${device_name}.img"
+		gzip "${src_path}/test2-${device_name}.img"
 		# ------
 		
 		# 导出固件路径
