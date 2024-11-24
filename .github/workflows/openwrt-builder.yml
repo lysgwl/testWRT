@@ -149,4 +149,10 @@ jobs:
           name: ${{ needs.build.outputs.name }}
           path: ${{ needs.build.outputs.path }}
           
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@main
+        with:
+          name: bin-dir
+          path: matrix.firmware
+          
       - run: echo ${{ matrix.firmware }} 
