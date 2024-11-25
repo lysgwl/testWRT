@@ -160,7 +160,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ matrix.firmware.name }}-$(date +"%Y.%m.%d")
+          name: ${{ matrix.firmware.name }}
+          tag_name: ${{ matrix.firmware.name }}-$(date +"%Y.%m.%d")
           files: ${{ matrix.firmware.file }}
 
       - name: Delete Firmware Artifact 
