@@ -126,9 +126,13 @@ jobs:
           name: ${{ steps.extract_firmware_info.outputs.name }}
           path: ${{ steps.extract_firmware_info.outputs.path }}
           
-      - name: Debug Firmware Json
-        run: |
-          json_str=${{ steps.extract_firmware_info.outputs.firmware_json }}
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2  # main
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 7
+          keep_minimum_runs: 2
 
   upload:
     runs-on: ubuntu-22.04
@@ -158,10 +162,10 @@ jobs:
       - name: Upload Firmware Release
         uses: softprops/action-gh-release@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           name: ${{ matrix.firmware.name }}
-          tag_name: ${{ matrix.firmware.name }}-$(date +"%Y.%m.%d")
+          tag_name: ${{ matrix.firmware.name }}
           files: ${{ matrix.firmware.file }}
 
       - name: Delete Firmware Artifact 
