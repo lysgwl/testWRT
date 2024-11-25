@@ -17,8 +17,8 @@ get_openwrt_firmware()
 	fi
 	
 	# ------
-	src_path="${path}/bin/targets/x86/generic"
-	mkdir -p ${src_path}
+	#src_path="${path}/bin/targets/x86/generic"
+	#mkdir -p ${src_path}
 	# ------
 	
 	if [ ! -d "${path}/bin/targets" ] || ! find "${path}/bin/targets/" -mindepth 2 -maxdepth 2 -type d -name '*' | grep -q '.'; then
@@ -49,10 +49,10 @@ get_openwrt_firmware()
 	cd ${path}/bin/targets/*/*
 	
 	# ------
-	echo "this is a test1" > "${src_path}/test1.txt"
-	echo "this is a test2" > "${src_path}/test2.txt"
-	echo "this is a test3" > "${src_path}/test3.txt"
-	echo "this is a test4" > "${src_path}/test4.txt"
+	#echo "this is a test1" > "${src_path}/test1.txt"
+	#echo "this is a test2" > "${src_path}/test2.txt"
+	#echo "this is a test3" > "${src_path}/test3.txt"
+	#echo "this is a test4" > "${src_path}/test4.txt"
 	# ------
 	
 	# 判断目录是否为空
@@ -76,11 +76,11 @@ get_openwrt_firmware()
 		fi
 		
 		# ------
-		dd if=/dev/zero of="${src_path}/test1-${device_name}.img" bs=1M count=1
-		dd if=/dev/zero of="${src_path}/test2-${device_name}.img" bs=1M count=1
+		#dd if=/dev/zero of="${src_path}/test1-${device_name}.img" bs=1M count=1
+		#dd if=/dev/zero of="${src_path}/test2-${device_name}.img" bs=1M count=1
 		
-		gzip "${src_path}/test1-${device_name}.img"
-		gzip "${src_path}/test2-${device_name}.img"
+		#gzip "${src_path}/test1-${device_name}.img"
+		#gzip "${src_path}/test2-${device_name}.img"
 		# ------
 		
 		# 导出固件路径
@@ -498,7 +498,6 @@ auto_compile_openwrt()
 		return 1
 	fi
 	
-	: "
 	# 设置 openwrt feeds源
 	if ! set_openwrt_feeds $1; then
 		return 1
@@ -511,14 +510,12 @@ auto_compile_openwrt()
 	
 	# 设置自定义配置
 	set_custom_config $1
-	"
 	
 	# 设置功能选项
 	if ! set_menu_options $1; then
 		return 1
 	fi
 
-	: "
 	# 下载openwrt包
 	if ! download_openwrt_package $1; then
 		return 1
@@ -528,10 +525,8 @@ auto_compile_openwrt()
 	if ! compile_openwrt_firmware $1; then
 		return 1
 	fi
-	"
 
 	# 获取OpenWrt固件
 	get_openwrt_firmware $1
-	
 	return 0
 }
