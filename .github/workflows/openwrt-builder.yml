@@ -131,7 +131,7 @@ jobs:
           json_str=${{ steps.extract_firmware_info.outputs.firmware_json }}
           
       - name: Delete Firmware Artifact 
-        uses: actions/delete-artifact@main
+        uses: geekyeggo/delete-artifact@main
         with:
           name: ${{ steps.extract_firmware_info.outputs.name }}
           path: ${{ steps.extract_firmware_info.outputs.path }}
