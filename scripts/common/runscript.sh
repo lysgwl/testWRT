@@ -123,9 +123,11 @@ get_openwrt_firmware()
 			
 			# 遍历固件目录
 			while IFS= read -r -d '' file; do
+				filename=$(basename "${file}")
+				
 				# 输出对象数组
 				declare -A object_array=(
-					["name"]="$(basename ${file})"
+					["name"]="$(echo "${filename}" | awk -F. '{print $1}')"
 					["file"]="${file}"
 				)
 				

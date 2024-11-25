@@ -159,14 +159,6 @@ jobs:
           name: ${{ matrix.firmware.name }}
           path: ${{ matrix.firmware.file }}
           
-      - name: Upload Firmware Release
-        uses: softprops/action-gh-release@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: "$(date +"%Y.%m.%d")"
-          files: ${{ matrix.firmware.file }}
-
       - name: Delete Firmware Artifact 
         uses: geekyeggo/delete-artifact@main
         with:
