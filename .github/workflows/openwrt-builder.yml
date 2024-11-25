@@ -129,13 +129,7 @@ jobs:
       - name: Debug Firmware Json
         run: |
           json_str=${{ steps.extract_firmware_info.outputs.firmware_json }}
-          
-      - name: Delete Firmware Artifact 
-        uses: geekyeggo/delete-artifact@main
-        with:
-          name: ${{ steps.extract_firmware_info.outputs.name }}
-          path: ${{ steps.extract_firmware_info.outputs.path }}
-          
+
   upload:
     runs-on: ubuntu-22.04
     needs: build
@@ -159,5 +153,9 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.firmware.name }}
-          path: ${{ matrix.firmware.file }} 
-          compression-level: 0
+          path: ${{ matrix.firmware.file }}
+          
+      - name: Delete Firmware Artifact 
+        uses: geekyeggo/delete-artifact@main
+        with:
+          name: ${{ needs.build.outputs.name }}  
