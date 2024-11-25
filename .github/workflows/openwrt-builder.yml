@@ -138,24 +138,33 @@ jobs:
       matrix:
         firmware:
           ${{ fromJson(needs.build.outputs.firmware) }}
-          
+
     steps:
       - name: Checkout
         uses: actions/checkout@main
-        
+
       - name: Download Firmware Folder
         uses: actions/download-artifact@main
         with:
           name: ${{ needs.build.outputs.name }}
           path: ${{ needs.build.outputs.path }}
-          
-      - name: Upload firmware directory
+
+      - name: Upload Firmware Directory
         uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.firmware.name }}
           path: ${{ matrix.firmware.file }}
           
+      - name: Upload Firmware Release
+        uses: softprops/action-gh-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ matrix.firmware.name }}-$(date +"%Y.%m.%d")
+          files: ${{ matrix.firmware.file }}
+
       - name: Delete Firmware Artifact 
         uses: geekyeggo/delete-artifact@main
         with:
-          name: ${{ needs.build.outputs.name }}  
+          name: ${{ needs.build.outputs.name }} 
+          failOnError: false
