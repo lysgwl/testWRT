@@ -31,25 +31,44 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          # CPU信息
+          echo -e "Total CPU cores\t: $(nproc)"
+          cat /proc/cpuinfo | grep 'model name'
+          
+          # 内存信息
+          free -h
+
+          # 磁盘信息
+          df -hT
+          
+          # 内核信息
+          uname -a
+          
+          [ -f /proc/version ] && cat /proc/version
+          [ -f /etc/issue.net ] && cat /etc/issue.net
+          [ -f /etc/issue ] && cat /etc/issue
+          
+          # 资源信息
+          ulimit -a
+
+      - name: Set compile scripts
+        run: |
           # 运行脚本路径
           scripts_path="${GITHUB_WORKSPACE}/scripts"  
           if [ ! -d "${scripts_path}" ]; then
               echo "Script path does not exist, Please check!"  
               exit 1
           fi
-
+          
           # 查找脚本并赋予权限
           find $GITHUB_WORKSPACE/scripts -exec chmod +x {} \;
-
+          
           # 检查执行脚本
           scripts_file="${GITHUB_WORKSPACE}/scripts/${BUILD_SCRIPT}"
           if [ ! -e "${scripts_file}" ]; then
               echo "Script files does not exist, Please check!"
               exit 1
           fi
-
-          # 检查磁盘空间
-          df -hT
           
           echo "scripts_path=${scripts_path}" >> $GITHUB_ENV
           echo "scripts_file=${scripts_file}" >> $GITHUB_ENV
