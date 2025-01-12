@@ -266,11 +266,17 @@ set_menu_options()
 			custom_feeds_file="${custom_feeds_file}-nginx"
 		fi
 		
-		if [ "${USER_CONFIG_ARRAY["dockercfg"]}" = "1" ]; then
-			custom_feeds_file="${custom_feeds_file}-docker"
+		if [ "${USER_CONFIG_ARRAY["litecfg"]}" = "1" ]; then
+			custom_feeds_file="${custom_feeds_file}-${USER_CONFIG_ARRAY["userdevice"]}-lite"
+		else
+			if [ "${USER_CONFIG_ARRAY["dockercfg"]}" = "1" ]; then
+				custom_feeds_file="${custom_feeds_file}-docker"
+			fi
+			
+			custom_feeds_file="${custom_feeds_file}-${USER_CONFIG_ARRAY["userdevice"]}"
 		fi
 		
-		custom_feeds_file="${custom_feeds_file}-${USER_CONFIG_ARRAY["userdevice"]}.config"
+		custom_feeds_file="${custom_feeds_file}.config"
 	fi
 	
 	# 进入源码目录

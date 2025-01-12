@@ -148,10 +148,13 @@ get_diy_config()
 		USER_CONFIG_ARRAY["defaultpasswd"]="${fields_array["user_passwd"]}"
 		
 		# nginx配置
-		USER_CONFIG_ARRAY["nginxcfg"]="${fields_array["nginx_cfg"]}"
+		USER_CONFIG_ARRAY["dockercfg"]="${fields_array["docker_cfg"]}"
 		
 		# nginx配置
-		USER_CONFIG_ARRAY["dockercfg"]="${fields_array["docker_cfg"]}"
+		USER_CONFIG_ARRAY["nginxcfg"]="${fields_array["nginx_cfg"]}"
+		
+		# lite配置
+		USER_CONFIG_ARRAY["litecfg"]="${fields_array["lite_cfg"]}"
 		
 		# 编译选项
 		USER_CONFIG_ARRAY["actionopt"]="${fields_array["action_option"]}"

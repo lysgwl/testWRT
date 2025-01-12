@@ -242,6 +242,16 @@ set_system_func()
 			sed -i "s/enabled '0'/enabled '1'/g" ${file}
 		fi
 	}
+	
+	# ttyd
+	{
+		print_log "INFO" "custom config" "[设置ttyd]"
+		
+		local file="${source_path}/feeds/packages/utils/ttyd/files/ttyd.config"
+		if [ -f "${file}" ]; then
+			sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${file}
+		fi
+	}
 }
 
 #********************************************************************************#
